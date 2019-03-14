@@ -1,4 +1,4 @@
-# -eloquent-mapper
+# eloquent-mapper
 
 [![Build Status](https://travis-ci.org/railken/eloquent-mapper.svg?branch=master)](https://travis-ci.org/railken/eloquent-mapper)
 

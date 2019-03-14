@@ -12,18 +12,17 @@ class Mapper
 {
     public static function relations(string $class, int $level = 3)
     {
-        $cacheKey = sprintf('relations:%s', $class);
+        $cacheKey = sprintf('relations:%s:%s', $class, $level);
 
         if (Cache::has($cacheKey)) {
-            return Cache::get($cacheKey);
+            //return Cache::get($cacheKey);
         }
 
         if ($level <= 0) {
             return [];
         }
-
         $finder = new RelationFinder();
-        $relations = $finder->getModelRelations($class);
+        $relations = $finder->getModelRelations($class)->toArray();
 
         foreach ($relations as $key => $relation) {
             $class = $relation->getModel();
@@ -45,8 +44,11 @@ class Mapper
 
     public static function mapKeysRelation(string $class, int $level = 3)
     {
-        return static::mapRelations($class, function ($relation) {
-            return $relation->name;
+        return static::mapRelations($class, function ($prefix, $relation) {
+
+            $key = $prefix ? $prefix.'.'.$relation->name : $relation->name;
+
+            return [$key, [$key]];
         }, $level);
     }
 
@@ -59,13 +61,9 @@ class Mapper
 
             foreach ($relations as $relation) {
 
-                $result = $parser($relation);
+                list($newPrefix, $newKeys) = $parser($prefix, $relation);
 
-                $key = $prefix ? $prefix.'.'.$result : $result;
-
-                $keys[] = $key;
-
-                $keys = array_merge($keys, $closure($relation->children, $key));
+                $keys = array_merge($keys, $newKeys, $closure($relation->children, $newPrefix));
             }
 
             return $keys;

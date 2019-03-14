@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Author extends Model
 {
-    use \Railken\EloquentMapper\Concerns\MapRelations;
-
     public function books()
     {
         return $this->hasMany(Book::class);

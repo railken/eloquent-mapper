@@ -6,11 +6,17 @@ use Fico7489\Laravel\EloquentJoin\EloquentJoinBuilder;
 use Illuminate\Database\Eloquent\Builder;
 
 class Joiner
-{
-    public static function joinRelations(Builder $builder, string $relation)
-    {
-        $joinerBuilder = new EloquentJoinBuilder($builder->getQuery());
+{	
+	protected $builder;
 
-        return $joinerBuilder->setModel($builder->getModel())->joinRelations($relation);
+	public function __construct(Builder $builder)
+	{
+        $this->builder = new EloquentJoinBuilder($builder->getQuery());
+        $this->builder->setModel($builder->getModel());
+	}
+
+    public function joinRelations(string $relation)
+    {
+        return $this->builder->joinRelations($relation);
     }
 }

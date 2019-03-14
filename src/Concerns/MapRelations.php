@@ -10,7 +10,7 @@ use Railken\Bag;
 trait MapRelations
 {
     use EloquentJoin;
-    
+
 	public function mapRelations($level = 3)
 	{
         $cacheKey = sprintf("relations:%s", get_class($this));
@@ -44,5 +44,28 @@ trait MapRelations
 
         return $relations;	
 	}
+
+    public function mapKeysRelation($level = 3)
+    {
+        $relations = $this->mapRelations($level);
+
+        $closure = function ($relations, $prefix = '') use (&$closure) {
+
+            $keys = [];
+
+            foreach ($relations as $relation) {
+
+                $key = $prefix ? $prefix.".".$relation->name : $relation->name;
+
+                $keys[] = $key;
+
+                $keys = array_merge($keys, $closure($relation->children, $key));
+            }
+
+            return $keys;
+        };
+
+        return $closure($relations);
+    }
 
 }

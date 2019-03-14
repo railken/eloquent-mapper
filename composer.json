@@ -12,7 +12,7 @@
     "require": {
         "php": ">=7.1",
         "railken/bag": "^1.2",
-        "fico7489/laravel-eloquent-join": "dev-master",
+        "fico7489/laravel-eloquent-join": "dev-ft-refactor",
         "beyondcode/laravel-er-diagram-generator": "^1.2"
     },
     "require-dev": {

@@ -13,11 +13,4 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
 
         $this->artisan('cache:clear');
     }
-
-    protected function getPackageProviders($app)
-    {
-        return [
-        	\BeyondCode\ErdGenerator\ErdGeneratorServiceProvider::class
-        ];
-    }
 }

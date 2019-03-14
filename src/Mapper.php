@@ -6,10 +6,11 @@ use BeyondCode\ErdGenerator\RelationFinder;
 use Fico7489\Laravel\EloquentJoin\Traits\EloquentJoin;
 use Illuminate\Support\Facades\Cache;
 use Railken\Bag;
+use Closure;
 
 class Mapper
 {
-    public static function mapRelations(string $class, int $level = 3)
+    public static function relations(string $class, int $level = 3)
     {
         $cacheKey = sprintf('relations:%s', $class);
 
@@ -33,7 +34,7 @@ class Mapper
                 'model'      => $relation->getModel(),
                 'localKey'   => $relation->getLocalKey(),
                 'foreignKey' => $relation->getForeignKey(),
-                'children'   => (new $class())->mapRelations($level - 1),
+                'children'   => static::relations($relation->getModel(), $level - 1)
             ]);
         }
 
@@ -44,13 +45,23 @@ class Mapper
 
     public static function mapKeysRelation(string $class, int $level = 3)
     {
-        $relations = static::mapRelations($class, $level);
+        return static::mapRelations($class, function ($relation) {
+            return $relation->name;
+        }, $level);
+    }
 
-        $closure = function ($relations, $prefix = '') use (&$closure) {
+    public static function mapRelations(string $class, Closure $parser, int $level = 3) 
+    {
+        $relations = static::relations($class, $level);
+
+        $closure = function ($relations, $prefix = '') use (&$closure, $parser) {
             $keys = [];
 
             foreach ($relations as $relation) {
-                $key = $prefix ? $prefix.'.'.$relation->name : $relation->name;
+
+                $result = $parser($relation);
+
+                $key = $prefix ? $prefix.'.'.$result : $result;
 
                 $keys[] = $key;
 

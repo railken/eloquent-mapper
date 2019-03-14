@@ -9,7 +9,7 @@ trait MapRelations
 {
     public function mapRelations(int $level = 3)
     {
-        return Mapper::mapRelations(get_class($this), $level);
+        return Mapper::relations(get_class($this), $level);
     }
 
     public function mapKeysRelation(int $level = 3)

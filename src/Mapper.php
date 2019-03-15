@@ -27,14 +27,19 @@ class Mapper
         foreach ($relations as $key => $relation) {
             $class = $relation->getModel();
 
-            $relations[$key] = new Bag([
-                'type'       => $relation->getType(),
-                'name'       => $relation->getName(),
-                'model'      => $relation->getModel(),
-                'localKey'   => $relation->getLocalKey(),
-                'foreignKey' => $relation->getForeignKey(),
-                'children'   => static::relations($relation->getModel(), $level - 1)
-            ]);
+            if ($relation->getType() === "MorphTo" || $relation->getType() === "BelongsToMany") {
+                unset($relations[$key]);
+            } else {
+
+                $relations[$key] = new Bag([
+                    'type'       => $relation->getType(),
+                    'name'       => $relation->getName(),
+                    'model'      => $relation->getModel(),
+                    'localKey'   => $relation->getLocalKey(),
+                    'foreignKey' => $relation->getForeignKey(),
+                    'children'   => static::relations($relation->getModel(), $level - 1)
+                ]);
+            }
         }
 
         Cache::forever($cacheKey, $relations);

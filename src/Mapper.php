@@ -15,7 +15,7 @@ class Mapper
         $cacheKey = sprintf('relations:%s:%s', $class, $level);
 
         if (Cache::has($cacheKey)) {
-            //return Cache::get($cacheKey);
+            return Cache::get($cacheKey);
         }
 
         if ($level <= 0) {

@@ -2,16 +2,16 @@
 
 namespace Railken\EloquentMapper;
 
-use Fico7489\Laravel\EloquentJoin\EloquentJoinBuilder;
 use Illuminate\Database\Eloquent\Builder;
+use Railken\EloquentMapper\Builder as JoinBuilder;
 
 class Joiner
 {	
 	protected $builder;
-
+    
 	public function __construct(Builder $builder)
 	{
-        $this->builder = new EloquentJoinBuilder($builder->getQuery());
+        $this->builder = new JoinBuilder($builder->getQuery());
         $this->builder->setModel($builder->getModel());
 	}
 

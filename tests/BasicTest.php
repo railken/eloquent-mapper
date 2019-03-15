@@ -19,6 +19,8 @@ class BasicTest extends BaseTest
         $joiner = new Joiner($qb);
         $joiner->joinRelations($array[2]);
 
-        $this->assertEquals($qb->toSql(), 'select books.* from `books` left join `authors` on `authors`.`id` = `books`.`author_id` left join `books` on `books`.`author_id` = `authors`.`id` left join `authors` on `authors`.`id` = `books`.`author_id` group by `books`.`id`');
+        print_r($array[2]);
+
+        $this->assertEquals('select books.* from `books` left join `authors` as `author` on `author`.`id` = `books`.`author_id` left join `books` as `author.books` on `author.books`.`author_id` = `author`.`id` left join `authors` as `author.books.author` on `author.books.author`.`id` = `author.books`.`author_id` group by `books`.`id`', $qb->toSql());
     }
 }

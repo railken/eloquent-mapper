@@ -3,16 +3,10 @@
     "type": "library",
     "keywords": ["laravel", "amethyst", "eloquent-mapper"],
     "license": "MIT",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:railken/laravel-eloquent-join.git"
-        }
-    ],
     "require": {
         "php": ">=7.1",
         "railken/bag": "^1.2",
-        "fico7489/laravel-eloquent-join": "dev-ft-refactor",
+        "railken/laravel-eloquent-join": "dev-master",
         "beyondcode/laravel-er-diagram-generator": "^1.2"
     },
     "require-dev": {

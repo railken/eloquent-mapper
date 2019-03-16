@@ -2,10 +2,9 @@
 
 namespace Railken\EloquentMapper\Tests;
 
-use Railken\EloquentMapper\Tests\BaseTest;
-use Railken\EloquentMapper\Tests\Models\Book;
-use Railken\EloquentMapper\Mapper;
 use Railken\EloquentMapper\Joiner;
+use Railken\EloquentMapper\Mapper;
+use Railken\EloquentMapper\Tests\Models\Book;
 
 class BasicTest extends BaseTest
 {

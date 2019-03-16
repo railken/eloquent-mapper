@@ -7,16 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Builder extends EloquentJoinBuilder
-{	
-
+{
     protected function parseAlias(Model $relatedModel, array $relations): string
     {
-        return implode(".", $relations);
+        return implode('.', $relations);
     }
 
     protected function parseAliasableKey(string $alias, string $key)
     {
         return DB::raw('`'.$alias.'`.`'.$key.'`');
     }
-
 }

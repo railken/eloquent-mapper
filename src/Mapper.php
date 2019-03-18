@@ -2,13 +2,29 @@
 
 namespace Railken\EloquentMapper;
 
-use BeyondCode\ErdGenerator\RelationFinder;
 use Closure;
 use Illuminate\Support\Facades\Cache;
 use Railken\Bag;
 
 class Mapper
-{
+{       
+    public static $relations = [];
+
+    public static function addRelation(string $name, Closure $callback)
+    {
+
+        if (!isset(static::$relations['*'])) {
+            static::$relations['*'] = [];
+        }
+
+        static::$relations['*'][] = $name;
+
+        \Illuminate\Database\Eloquent\Builder::macro($name, function () use ($name, $callback) {
+            unset(static::$macros[$name]);
+            return $callback;
+        });
+    }
+
     public static function relations(string $class, int $level = 3)
     {
         $cacheKey = sprintf('relations:%s:%s', $class, $level);
@@ -64,7 +80,9 @@ class Mapper
             foreach ($relations as $relation) {
                 list($newPrefix, $newKeys) = $parser($prefix, $relation);
 
-                $keys = array_merge($keys, $newKeys, $closure($relation->children, $newPrefix));
+                if ($newPrefix !== null) {
+                    $keys = array_merge($keys, $newKeys, $closure($relation->children, $newPrefix));
+                }
             }
 
             return $keys;

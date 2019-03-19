@@ -42,7 +42,7 @@ class Mapper
         foreach ($relations as $key => $relation) {
             $class = $relation->getModel();
 
-            if ($relation->getType() === 'MorphTo' || $relation->getType() === 'BelongsToMany') {
+            if ($relation->getType() === 'MorphTo') {
                 unset($relations[$key]);
             } else {
                 $relations[$key] = new Bag([

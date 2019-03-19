@@ -50,6 +50,28 @@ class RelationFinder extends BaseRelationFinder
         return $relations;
     }
 
+    public function getKeyFromRelation(Relation $relation, string $keyName)
+    {
+        $getQualifiedKeyMethod = 'getQualified'.ucfirst($keyName).'Name';
+
+        if (method_exists($relation, $getQualifiedKeyMethod)) {
+            return last(explode('.', $relation->$getQualifiedKeyMethod()));
+        }
+
+        $getKeyMethod = 'get'.ucfirst($keyName);
+
+        if (method_exists($relation, $getKeyMethod)) {
+            return $relation->$getKeyMethod();
+        }
+
+        // relatedKey is protected before 5.7 in BelongsToMany
+        $reflection = new \ReflectionClass($relation);
+        $property = $reflection->getProperty($keyName);
+        $property->setAccessible(true);
+
+        return $property->getValue($relation);
+    }
+
     /**
      * @param string $qualifiedKeyName
      *
@@ -107,12 +129,12 @@ class RelationFinder extends BaseRelationFinder
             $localKey = null;
             $foreignKey = null;
             if ($return instanceof HasOneOrMany) {
-                $localKey = $this->getParentKey($return->getQualifiedParentKeyName());
-                $foreignKey = $return->getForeignKeyName();
+                $localKey = $this->getKeyFromRelation($return, 'parentKey');
+                $foreignKey = $this->getKeyFromRelation($return, 'foreignKey');
             }
             if ($return instanceof BelongsTo) {
-                $foreignKey = $this->getParentKey($return->getQualifiedOwnerKeyName());
-                $localKey = $return->getForeignKey();
+                $foreignKey = $this->getKeyFromRelation($return, 'ownerKey');
+                $localKey = $this->getKeyFromRelation($return, 'foreignKey');
             }
 
             return [

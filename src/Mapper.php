@@ -7,12 +7,11 @@ use Illuminate\Support\Facades\Cache;
 use Railken\Bag;
 
 class Mapper
-{       
+{
     public static $relations = [];
 
     public static function addRelation(string $name, Closure $callback)
     {
-
         if (!isset(static::$relations['*'])) {
             static::$relations['*'] = [];
         }
@@ -21,6 +20,7 @@ class Mapper
 
         \Illuminate\Database\Eloquent\Builder::macro($name, function () use ($name, $callback) {
             unset(static::$macros[$name]);
+
             return $callback;
         });
     }

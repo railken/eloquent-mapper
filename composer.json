@@ -6,7 +6,7 @@
     "require": {
         "php": ">=7.1",
         "railken/bag": "^1.2",
-        "railken/laravel-eloquent-join": "dev-master",
+        "railken/laravel-eloquent-join": "0.1.*",
         "beyondcode/laravel-er-diagram-generator": "^1.2"
     },
     "require-dev": {

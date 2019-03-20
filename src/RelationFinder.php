@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionFunction;
+use ReflectionFunctionAbstract;
 use ReflectionMethod;
 
 class RelationFinder extends BaseRelationFinder
@@ -29,18 +30,27 @@ class RelationFinder extends BaseRelationFinder
         $traitMethods = Collection::make($class->getTraits())->map(function (ReflectionClass $trait) {
             return Collection::make($trait->getMethods(ReflectionMethod::IS_PUBLIC));
         })->flatten();
+        $macroMethods = $this->getMacroMethods($model);
+
         $methods = Collection::make($class->getMethods(ReflectionMethod::IS_PUBLIC))
             ->merge($traitMethods)
             ->reject(function (ReflectionMethod $method) use ($model) {
-                return $method->class !== $model || $method->getNumberOfParameters() > 0;
+                return $method->class !== $model;
+            })
+            ->mapWithKeys(function (ReflectionMethod $method) {
+                return [$method->getName() => $method];
+            })
+            ->merge($macroMethods)
+            ->reject(function (ReflectionFunctionAbstract $functionAbstract) {
+                return $functionAbstract->getNumberOfParameters() > 0 || !is_subclass_of((string) $functionAbstract->getReturnType(), Relation::class);
             });
         $relations = Collection::make();
 
-        $methods->map(function (ReflectionMethod $method) use ($model, &$relations) {
-            $relations = $relations->merge($this->getRelationshipFromMethodAndModel($method, $model));
-        });
+        $methods->map(function (ReflectionFunctionAbstract $functionAbstract, string $functionName) use ($model, &$relations) {
+            $return = $functionAbstract instanceof ReflectionMethod ? $functionAbstract->invoke(app($model)) : (app($model))->$functionName();
 
-        $relations = $relations->merge($this->retrieveMacroableRelationships($model));
+            $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
+        });
 
         $relations = $relations->filter();
         if ($ignoreRelations = array_get(config('erd-generator.ignore', []), $model)) {
@@ -84,43 +94,17 @@ class RelationFinder extends BaseRelationFinder
         return end($segments);
     }
 
-    protected function retrieveMacroableRelationships(string $model)
+    protected function getMacroMethods(string $model)
     {
         $query = app($model)->newModelQuery();
-
         $reflection = (new ReflectionClass($query));
         $property = $reflection->getProperty('macros');
         $property->setAccessible(true);
 
-        $relations = Collection::make($property->getValue($query))
+        return Collection::make($property->getValue($query))
             ->map(function ($callable) {
                 return new ReflectionFunction($callable);
-            })
-            ->reject(function ($callable) use ($model) {
-                return $callable->getNumberOfParameters() > 0;
-            })->mapWithKeys(function ($callable, $methodName) use ($model) {
-                return $this->getRelationshipFromReturn($methodName, (app($model))->$methodName());
             });
-
-        return $relations;
-    }
-
-    /**
-     * @param ReflectionMethod $method
-     * @param string           $model
-     *
-     * @return array|null
-     */
-    protected function getRelationshipFromMethodAndModel(ReflectionMethod $method, string $model)
-    {
-        try {
-            $return = $method->invoke(app($model));
-
-            return $this->getRelationshipFromReturn($method->getName(), $return);
-        } catch (\Throwable $e) {
-        }
-
-        return null;
     }
 
     protected function getRelationshipFromReturn(string $name, $return)

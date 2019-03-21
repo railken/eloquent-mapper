@@ -25,17 +25,44 @@ class Mapper
         });
     }
 
-    public static function relations(string $class, int $level = 3)
+    public static function findRelationByKey(array $relations, string $needle)
     {
-        $cacheKey = sprintf('relations:%s:%s', $class, $level);
+        foreach ($relations as $key => $relation) {
+            if ($needle === $key) {
+                return $relation;
+            }
+        }
+
+        return null;
+    }
+
+    public static function isValidNestedRelation(string $class, string $key)
+    {
+        $keys = explode(".", $key);
+
+        $relation = static::findRelationByKey(static::relations($class), $keys[0]);
+
+        if (!$relation) {
+            return false;
+        }
+
+        if (count($keys) === 1) {
+            return true;
+        }
+        
+        array_shift($keys);
+
+        return static::isValidNestedRelation($relation->get('model'), implode(".", $keys));
+    }
+
+    public static function relations(string $class)
+    {
+        $cacheKey = sprintf('relations:%s', $class);
 
         if (Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         }
 
-        if ($level <= 0) {
-            return [];
-        }
         $finder = new RelationFinder();
         $relations = $finder->getModelRelations($class)->toArray();
 
@@ -45,14 +72,21 @@ class Mapper
             if ($relation->getType() === 'MorphTo') {
                 unset($relations[$key]);
             } else {
-                $relations[$key] = new Bag([
+                $bag = new Bag([
                     'type'       => $relation->getType(),
                     'name'       => $relation->getName(),
                     'model'      => $relation->getModel(),
                     'localKey'   => $relation->getLocalKey(),
-                    'foreignKey' => $relation->getForeignKey(),
-                    'children'   => static::relations($relation->getModel(), $level - 1),
+                    'foreignKey' => $relation->getForeignKey()
                 ]);
+
+                $relations[$key] = $bag;
+            }
+        }
+
+        foreach ($relations as $key => $relation) {
+            if (!static::findSameRelation($relations, $relation)) {
+                $bag->set('children', static::relations($relation->getModel()));
             }
         }
 
@@ -61,23 +95,39 @@ class Mapper
         return $relations;
     }
 
-    public static function mapKeysRelation(string $class, int $level = 3)
+    public static function findSameRelation(array $relations, Bag $needle) {
+        foreach ($relations as $key => $relation) {
+            $bag = (new Bag($relation->toArray()))->remove('children');
+            
+            if (count(array_diff($bag->toArray(), $needle->toArray())) === 0) {
+                return true;
+            }
+
+            if ($relation->children && static::findSameRelation($relation->children, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function mapKeysRelation(string $class)
     {
         return static::mapRelations($class, function ($prefix, $relation) {
             $key = $prefix ? $prefix.'.'.$relation->name : $relation->name;
 
             return [$key, [$key]];
-        }, $level);
+        });
     }
 
-    public static function mapRelations(string $class, Closure $parser, int $level = 3)
+    public static function mapRelations(string $class, Closure $parser)
     {
-        $relations = static::relations($class, $level);
+        $relations = static::relations($class);
 
         $closure = function ($relations, $prefix = '') use (&$closure, $parser) {
             $keys = [];
 
-            foreach ($relations as $relation) {
+            foreach ((array) $relations as $relation) {
                 list($newPrefix, $newKeys) = $parser($prefix, $relation);
 
                 if ($newPrefix !== null) {

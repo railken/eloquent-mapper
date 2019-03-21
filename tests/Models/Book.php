@@ -16,4 +16,9 @@ class Book extends Model
     {
         return $this->morphMany(Tag::class, 'taggable');
     }
+
+    public function categories(): Relations\MorphMany
+    {
+        return $this->morphMany(Category::class, 'categorizable');
+    }
 }

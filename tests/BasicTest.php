@@ -12,14 +12,19 @@ class BasicTest extends BaseTest
     {
         $array = Mapper::mapKeysRelation(Book::class);
 
-        $this->assertEquals(1, 1);
-
         $qb = (new Book())->newQuery();
         $joiner = new Joiner($qb);
-        $joiner->joinRelations($array[2]);
+        $joiner->joinRelations($array[0]);
 
-        print_r($array[2]);
+        $this->assertEquals('select books.* from `books` left join `authors` as `author` on `author`.`id` = `books`.`author_id` group by `books`.`id`', $qb->toSql());
+    }
 
-        $this->assertEquals('select books.* from `books` left join `authors` as `author` on `author`.`id` = `books`.`author_id` left join `books` as `author.books` on `author.books`.`author_id` = `author`.`id` left join `authors` as `author.books.author` on `author.books.author`.`id` = `author.books`.`author_id` group by `books`.`id`', $qb->toSql());
+    public function testValidationNestedRelationship()
+    {
+        $this->assertEquals(true, Mapper::isValidNestedRelation(Book::class, 'categories.children'));
+        $this->assertEquals(true, Mapper::isValidNestedRelation(Book::class, 'categories.children.children.children'));
+        $this->assertEquals(false, Mapper::isValidNestedRelation(Book::class, 'wrong'));
+        $this->assertEquals(false, Mapper::isValidNestedRelation(Book::class, 'categories.children.children.childrens'));
+
     }
 }

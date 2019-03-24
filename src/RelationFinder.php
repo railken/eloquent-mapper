@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
+use Railken\Bag;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
-use Railken\Bag;
 
 class RelationFinder
 {
@@ -55,6 +55,7 @@ class RelationFinder
         if ($ignoreRelations = array_get(config('erd-generator.ignore', []), $model)) {
             $relations = $relations->diffKeys(array_flip($ignoreRelations));
         }
+
         return $relations;
     }
 
@@ -124,7 +125,7 @@ class RelationFinder
                 'name'       => $name,
                 'model'      => (new ReflectionClass($return->getRelated()))->getName(),
                 'localKey'   => $localKey,
-                'foreignKey' => $foreignKey
+                'foreignKey' => $foreignKey,
             ])];
         }
     }

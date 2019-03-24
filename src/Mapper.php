@@ -38,10 +38,9 @@ class Mapper
 
     public static function isValidNestedRelation(string $class, string $key)
     {
-        $keys = explode(".", $key);
+        $keys = explode('.', $key);
         $relation = static::findRelationByKey(static::relations($class), $keys[0]);
 
-        
         if (!$relation) {
             return false;
         }
@@ -49,10 +48,10 @@ class Mapper
         if (count($keys) === 1) {
             return true;
         }
-        
+
         array_shift($keys);
 
-        return static::isValidNestedRelation($relation->get('model'), implode(".", $keys));
+        return static::isValidNestedRelation($relation->get('model'), implode('.', $keys));
     }
 
     public static function relations(string $class)
@@ -83,10 +82,11 @@ class Mapper
         return $relations;
     }
 
-    public static function findSameRelation(array $relations, Bag $needle) {
+    public static function findSameRelation(array $relations, Bag $needle)
+    {
         foreach ($relations as $key => $relation) {
             $bag = $relation->remove('children');
-            
+
             if (count(array_diff($bag->toArray(), $needle->toArray())) === 0) {
                 return true;
             }

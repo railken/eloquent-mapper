@@ -25,6 +25,5 @@ class BasicTest extends BaseTest
         $this->assertEquals(true, Mapper::isValidNestedRelation(Book::class, 'categories.children.children.children'));
         $this->assertEquals(false, Mapper::isValidNestedRelation(Book::class, 'wrong'));
         $this->assertEquals(false, Mapper::isValidNestedRelation(Book::class, 'categories.children.children.childrens'));
-
     }
 }

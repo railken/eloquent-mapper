@@ -3,6 +3,7 @@
 namespace Railken\EloquentMapper;
 
 use Closure;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Railken\Bag;
 
@@ -36,22 +37,41 @@ class Mapper
         return null;
     }
 
+    public static function resolveRelations(string $class, array $relations)
+    {
+        $resolved = Collection::make();
+
+        foreach ($relations as $relation) {
+            $resolved = $resolved->merge(static::resolveRelation($class, $relation));
+        }
+
+        return $resolved;
+    }
+
+    public static function resolveRelation(string $class, string $key)
+    {
+        $resolved = Collection::make();
+
+        $keys = explode('.', $key);
+
+        foreach ($keys as $i => $key) {
+            $relation = static::findRelationByKey(static::relations($class), $key);
+
+            if (!$relation) {
+                return Collection::make();
+            }
+
+            $class = $relation->model;
+
+            $resolved[implode('.', array_slice($keys, 0, $i + 1))] = $relation;
+        }
+
+        return $resolved;
+    }
+
     public static function isValidNestedRelation(string $class, string $key)
     {
-        $keys = explode('.', $key);
-        $relation = static::findRelationByKey(static::relations($class), $keys[0]);
-
-        if (!$relation) {
-            return false;
-        }
-
-        if (count($keys) === 1) {
-            return true;
-        }
-
-        array_shift($keys);
-
-        return static::isValidNestedRelation($relation->get('model'), implode('.', $keys));
+        return static::resolveRelation($class, $key)->count() !== 0;
     }
 
     public static function relations(string $class)

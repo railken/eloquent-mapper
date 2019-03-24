@@ -2,8 +2,6 @@
 
 namespace Railken\EloquentMapper;
 
-use BeyondCode\ErdGenerator\ModelRelation;
-use BeyondCode\ErdGenerator\RelationFinder as BaseRelationFinder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -12,8 +10,9 @@ use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
+use Railken\Bag;
 
-class RelationFinder extends BaseRelationFinder
+class RelationFinder
 {
     /**
      * Return all relations from a fully qualified model class name.
@@ -56,7 +55,6 @@ class RelationFinder extends BaseRelationFinder
         if ($ignoreRelations = array_get(config('erd-generator.ignore', []), $model)) {
             $relations = $relations->diffKeys(array_flip($ignoreRelations));
         }
-
         return $relations;
     }
 
@@ -121,15 +119,13 @@ class RelationFinder extends BaseRelationFinder
                 $localKey = $this->getKeyFromRelation($return, 'foreignKey');
             }
 
-            return [
-                $name => new ModelRelation(
-                    $name,
-                    (new ReflectionClass($return))->getShortName(),
-                    (new ReflectionClass($return->getRelated()))->getName(),
-                    $localKey,
-                    $foreignKey
-                ),
-            ];
+            return [$name => new Bag([
+                'type'       => (new ReflectionClass($return))->getShortName(),
+                'name'       => $name,
+                'model'      => (new ReflectionClass($return->getRelated()))->getName(),
+                'localKey'   => $localKey,
+                'foreignKey' => $foreignKey
+            ])];
         }
     }
 }

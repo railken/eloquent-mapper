@@ -39,9 +39,9 @@ class Mapper
     public static function isValidNestedRelation(string $class, string $key)
     {
         $keys = explode(".", $key);
-
         $relation = static::findRelationByKey(static::relations($class), $keys[0]);
 
+        
         if (!$relation) {
             return false;
         }
@@ -67,26 +67,14 @@ class Mapper
         $relations = $finder->getModelRelations($class)->toArray();
 
         foreach ($relations as $key => $relation) {
-            $class = $relation->getModel();
-
-            if ($relation->getType() === 'MorphTo') {
+            if ($relation->type === 'MorphTo') {
                 unset($relations[$key]);
-            } else {
-                $bag = new Bag([
-                    'type'       => $relation->getType(),
-                    'name'       => $relation->getName(),
-                    'model'      => $relation->getModel(),
-                    'localKey'   => $relation->getLocalKey(),
-                    'foreignKey' => $relation->getForeignKey()
-                ]);
-
-                $relations[$key] = $bag;
             }
         }
 
         foreach ($relations as $key => $relation) {
             if (!static::findSameRelation($relations, $relation)) {
-                $bag->set('children', static::relations($relation->getModel()));
+                $bag->set('children', static::relations($relation->model));
             }
         }
 
@@ -97,7 +85,7 @@ class Mapper
 
     public static function findSameRelation(array $relations, Bag $needle) {
         foreach ($relations as $key => $relation) {
-            $bag = (new Bag($relation->toArray()))->remove('children');
+            $bag = $relation->remove('children');
             
             if (count(array_diff($bag->toArray(), $needle->toArray())) === 0) {
                 return true;

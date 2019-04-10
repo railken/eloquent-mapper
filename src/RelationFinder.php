@@ -46,9 +46,13 @@ class RelationFinder
         $relations = Collection::make();
 
         $methods->map(function (ReflectionFunctionAbstract $functionAbstract, string $functionName) use ($model, &$relations) {
-            $return = $functionAbstract instanceof ReflectionMethod ? $functionAbstract->invoke(app($model)) : (app($model))->$functionName();
 
-            $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
+            try {
+                $return = $functionAbstract instanceof ReflectionMethod ? $functionAbstract->invoke(app($model)) : (app($model))->$functionName();
+                $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
+            } catch (\BadMethodCallException $e) {
+            }
+
         });
 
         $relations = $relations->filter();

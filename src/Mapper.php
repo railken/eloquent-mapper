@@ -87,7 +87,7 @@ class Mapper
 
         foreach ($relations as $key => $relation) {
             if ($relation->type === 'MorphTo') {
-                unset($relations[$key]);
+                // unset($relations[$key]);
             }
         }
 
@@ -107,7 +107,7 @@ class Mapper
         foreach ($relations as $key => $relation) {
             $bag = $relation->remove('children');
 
-            if (count(array_diff($bag->toArray(), $needle->toArray())) === 0) {
+            if (json_encode($bag->toArray()) === json_encode($needle->toArray())) {
                 return true;
             }
 

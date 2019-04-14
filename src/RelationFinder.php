@@ -4,6 +4,7 @@ namespace Railken\EloquentMapper;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Railken\Bag;
@@ -50,6 +51,7 @@ class RelationFinder
                 $return = $functionAbstract instanceof ReflectionMethod ? $functionAbstract->invoke(app($model)) : (app($model))->$functionName();
                 $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
             } catch (\BadMethodCallException $e) {
+                echo $e->getMessage()."\n";
             }
         });
 
@@ -128,7 +130,47 @@ class RelationFinder
                 'model'      => (new ReflectionClass($return->getRelated()))->getName(),
                 'localKey'   => $localKey,
                 'foreignKey' => $foreignKey,
+                'scope' => $this->getScopeRelation($return)
             ])];
         }
+    }
+    protected function skipClausesByClassRelation(Relation $relation)
+    {
+        if ($relation instanceof BelongsTo) {
+            return 1;
+        }
+
+        if ($relation instanceof HasOneOrMany) {
+            return 2;
+        }
+
+        if ($relation instanceof BelongsToMany) {
+            return 3;
+        }
+    }
+
+
+    protected function getScopeRelation($relation)
+    {
+        $relationBuilder = $relation->getQuery();
+
+        $wheres = array_slice($relationBuilder->getQuery()->wheres, $this->skipClausesByClassRelation($relation));
+
+        $return = [];
+
+        foreach ($wheres as $clause) {
+            if ('Basic' === $clause['type']) {
+
+                $partsColumn = explode('.', $clause['column']);
+
+                if (count($partsColumn) > 1) {
+                    $clause['column'] = implode('.', array_slice($partsColumn, 1));
+                }
+                
+                $return[] = $clause;
+            }
+        }
+
+        return $return;
     }
 }

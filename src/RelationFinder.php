@@ -51,7 +51,6 @@ class RelationFinder
                 $return = $functionAbstract instanceof ReflectionMethod ? $functionAbstract->invoke(app($model)) : (app($model))->$functionName();
                 $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
             } catch (\BadMethodCallException $e) {
-                echo $e->getMessage()."\n";
             }
         });
 

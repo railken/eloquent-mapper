@@ -6,9 +6,13 @@ use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Railken\Bag;
+use Railken\Cacheable\CacheableTrait;
+use Railken\Cacheable\CacheableContract;
 
-class Mapper
+class Mapper implements CacheableContract
 {
+    use CacheableTrait;
+
     public static $relations = [];
 
     public static function addRelation(string $name, Closure $callback)
@@ -76,28 +80,14 @@ class Mapper
 
     public static function relations(string $class)
     {
-        $cacheKey = sprintf('relations:%s', $class);
-
-        if (Cache::has($cacheKey)) {
-            return Cache::get($cacheKey);
-        }
-
         $finder = new RelationFinder();
         $relations = $finder->getModelRelations($class)->toArray();
-
-        foreach ($relations as $key => $relation) {
-            if ($relation->type === 'MorphTo') {
-                // unset($relations[$key]);
-            }
-        }
 
         foreach ($relations as $key => $relation) {
             if (!static::findSameRelation($relations, $relation)) {
                 $bag->set('children', static::relations($relation->model));
             }
         }
-
-        Cache::forever($cacheKey, $relations);
 
         return $relations;
     }

@@ -6,7 +6,8 @@
     "require": {
         "php": ">=7.1",
         "railken/bag": "^1.2",
-        "railken/laravel-eloquent-join": "0.1.*"
+        "railken/laravel-eloquent-join": "0.1.*",
+        "railken/cacheable": "0.1.*"
     },
     "require-dev": {
         "phpunit/phpunit": "~7.0",

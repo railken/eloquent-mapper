@@ -34,9 +34,6 @@ class RelationFinder
 
         $methods = Collection::make($class->getMethods(ReflectionMethod::IS_PUBLIC))
             ->merge($traitMethods)
-            ->reject(function (ReflectionMethod $method) use ($model) {
-                return $method->class !== $model;
-            })
             ->mapWithKeys(function (ReflectionMethod $method) {
                 return [$method->getName() => $method];
             })
@@ -48,7 +45,7 @@ class RelationFinder
 
         $methods->map(function (ReflectionFunctionAbstract $functionAbstract, string $functionName) use ($model, &$relations) {
             try {
-                $return = $functionAbstract instanceof ReflectionMethod ? $functionAbstract->invoke(app($model)) : (app($model))->$functionName();
+                $return = app($model)->$functionName();
                 $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
             } catch (\BadMethodCallException $e) {
             }

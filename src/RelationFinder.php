@@ -5,6 +5,7 @@ namespace Railken\EloquentMapper;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Railken\Bag;
@@ -41,6 +42,8 @@ class RelationFinder
             ->reject(function (ReflectionFunctionAbstract $functionAbstract) {
                 return $functionAbstract->getNumberOfParameters() > 0 || !is_subclass_of((string) $functionAbstract->getReturnType(), Relation::class);
             });
+
+
         $relations = Collection::make();
 
         $methods->map(function (ReflectionFunctionAbstract $functionAbstract, string $functionName) use ($model, &$relations) {
@@ -50,11 +53,6 @@ class RelationFinder
             } catch (\BadMethodCallException $e) {
             }
         });
-
-        $relations = $relations->filter();
-        if ($ignoreRelations = array_get(config('erd-generator.ignore', []), $model)) {
-            $relations = $relations->diffKeys(array_flip($ignoreRelations));
-        }
 
         return $relations;
     }
@@ -74,8 +72,11 @@ class RelationFinder
         }
 
         // relatedKey is protected before 5.7 in BelongsToMany
+
         $reflection = new \ReflectionClass($relation);
-        $property = $reflection->getProperty($keyName);
+
+            $property = $reflection->getProperty($keyName);
+
         $property->setAccessible(true);
 
         return $property->getValue($relation);
@@ -106,6 +107,14 @@ class RelationFinder
             });
     }
 
+    protected function accessProtected($obj, $prop) {
+        $reflection = new ReflectionClass($obj);
+        $property = $reflection->getProperty($prop);
+        $property->setAccessible(true);
+
+        return $property->getValue($obj);
+    }
+
     protected function getRelationshipFromReturn(string $name, $return)
     {
         if ($return instanceof Relation) {
@@ -115,21 +124,31 @@ class RelationFinder
                 $localKey = $this->getKeyFromRelation($return, 'parentKey');
                 $foreignKey = $this->getKeyFromRelation($return, 'foreignKey');
             }
+
             if ($return instanceof BelongsTo) {
                 $foreignKey = $this->getKeyFromRelation($return, 'ownerKey');
                 $localKey = $this->getKeyFromRelation($return, 'foreignKey');
             }
 
-            return [$name => new Bag([
+            $result = new Bag([
                 'type'       => (new ReflectionClass($return))->getShortName(),
                 'name'       => $name,
                 'model'      => (new ReflectionClass($return->getRelated()))->getName(),
                 'localKey'   => $localKey,
                 'foreignKey' => $foreignKey,
                 'scope' => $this->getScopeRelation($return)
-            ])];
+            ]);
+
+            if ($return instanceof MorphToMany) {
+                $result->set('intermediate', $this->accessProtected($return, 'using'));
+                $result->set('relatedPivotKey', $this->getKeyFromRelation($return, 'relatedPivotKey'));
+                $result->set('foreignPivotKey', $this->getKeyFromRelation($return, 'foreignPivotKey'));
+            }
+
+            return [$name => $result];
         }
     }
+
     protected function skipClausesByClassRelation(Relation $relation)
     {
         if ($relation instanceof BelongsTo) {
@@ -138,6 +157,10 @@ class RelationFinder
 
         if ($relation instanceof HasOneOrMany) {
             return 2;
+        }
+
+        if ($relation instanceof MorphToMany) {
+            return 1;
         }
 
         if ($relation instanceof BelongsToMany) {
@@ -154,13 +177,16 @@ class RelationFinder
 
         $return = [];
 
-        foreach ($wheres as $clause) {
+        foreach ($wheres as $n => $clause) {
+
             if ('Basic' === $clause['type']) {
 
-                $partsColumn = explode('.', $clause['column']);
+                if ($n === 0) {
+                    $partsColumn = explode('.', $clause['column']);
 
-                if (count($partsColumn) > 1) {
-                    $clause['column'] = implode('.', array_slice($partsColumn, 1));
+                    if (count($partsColumn) > 1) {
+                        $clause['column'] = implode('.', array_slice($partsColumn, 1));
+                    }
                 }
                 
                 $return[] = $clause;

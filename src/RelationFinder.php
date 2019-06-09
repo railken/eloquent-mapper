@@ -139,7 +139,7 @@ class RelationFinder
                 'scope' => $this->getScopeRelation($return)
             ]);
 
-            if ($return instanceof MorphToMany) {
+            if ($return instanceof BelongsToMany || $return instanceof MorphToMany) {
                 $result->set('intermediate', $this->accessProtected($return, 'using'));
                 $result->set('relatedPivotKey', $this->getKeyFromRelation($return, 'relatedPivotKey'));
                 $result->set('foreignPivotKey', $this->getKeyFromRelation($return, 'foreignPivotKey'));

@@ -42,11 +42,20 @@ class RelationFinder
             ->reject(function (ReflectionFunctionAbstract $functionAbstract) {
                 return $functionAbstract->getNumberOfParameters() > 0 || !is_subclass_of((string) $functionAbstract->getReturnType(), Relation::class);
             });
+        
 
 
         $relations = Collection::make();
 
-        $methods->map(function (ReflectionFunctionAbstract $functionAbstract, string $functionName) use ($model, &$relations) {
+        $methods = $methods->keys();
+
+        // Detect imanghafoori1/eloquent-relativity
+        $property = $class->getProperty('dynamicRelations');
+        $property->setAccessible(true);
+        $methods = $methods->merge(Collection::make($property->getValue('dynamicRelations'))->keys());
+
+
+        $methods->map(function (string $functionName) use ($model, &$relations) {
             try {
                 $return = app($model)->$functionName();
                 $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
@@ -75,7 +84,7 @@ class RelationFinder
 
         $reflection = new \ReflectionClass($relation);
 
-            $property = $reflection->getProperty($keyName);
+        $property = $reflection->getProperty($keyName);
 
         $property->setAccessible(true);
 

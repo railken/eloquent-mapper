@@ -107,12 +107,21 @@ class Helper
             $related = $relation->model;
             $methodPlural = Str::plural($morphName);
 
-            if ($relation->type === 'BelongsTo' && !method_exists($related, $methodPlural)) {
-                $related::has_many($methodPlural, $model);
-            }
+            if (!method_exists($related, $methodPlural)) {
+                if ($relation->type === 'BelongsTo') {
+                    $related::has_many($methodPlural, $model);
+                }
 
-            if ($relation->type === 'MorphTo' && !method_exists($related, $methodPlural)) {
-                $related::morph_many($methodPlural, $model, $relation->key);
+                if ($relation->type === 'MorphToMany' ) {
+
+                    if (isset($relation->morphType)) {
+
+                        $key = str_replace("_type", "", $relation->morphType);
+
+                        $related::morphed_by_many($methodPlural, $model, $key, $relation->table, $relation->relatedPivotKey, $relation->foreignPivotKey)->using($relation->intermediate);
+                    }
+
+                }
             }
         });
     }

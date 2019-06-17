@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
+use Illuminate\Database\Eloquent\Relations\Relation; 
 use Illuminate\Support\Collection;
 use Railken\Bag;
 use ReflectionClass;
@@ -148,7 +149,13 @@ class RelationFinder
                 'scope' => $this->getScopeRelation($return)
             ]);
 
-            if ($return instanceof BelongsToMany || $return instanceof MorphToMany) {
+            if ($return instanceof MorphOneOrMany || $return instanceof MorphToMany) {
+                $result->set('morphType', $this->getKeyFromRelation($return, 'morphType'));
+                $result->set('morphClass', $this->getKeyFromRelation($return, 'morphClass'));
+            }
+
+            if ($return instanceof BelongsToMany) {
+                $result->set('table', $this->accessProtected($return, 'table'));
                 $result->set('intermediate', $this->accessProtected($return, 'using'));
                 $result->set('relatedPivotKey', $this->getKeyFromRelation($return, 'relatedPivotKey'));
                 $result->set('foreignPivotKey', $this->getKeyFromRelation($return, 'foreignPivotKey'));

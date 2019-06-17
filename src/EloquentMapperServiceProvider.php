@@ -3,7 +3,6 @@
 namespace Railken\EloquentMapper;
 
 use Illuminate\Support\ServiceProvider;
-
 use Railken\EloquentMapper\Console\Commands\Mapper;
 
 class EloquentMapperServiceProvider extends ServiceProvider

@@ -2,11 +2,11 @@
 
 namespace Railken\EloquentMapper;
 
-use Illuminate\Support\Collection;
 use Closure;
+use Illuminate\Support\Collection;
 
 class Finder
-{       
+{
     protected $data;
 
     public function __construct(array $data)
@@ -18,7 +18,6 @@ class Finder
         });
 
         $this->data = $data;
-
     }
 
     public function findRelationByKey(array $relations, string $needle)
@@ -42,7 +41,6 @@ class Finder
 
         return $resolved;
     }
-
 
     public function resolveRelation(string $class, string $key)
     {
@@ -110,4 +108,3 @@ class Finder
         return $closure($relations);
     }
 }
-

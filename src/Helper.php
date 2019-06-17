@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Support\Str;
 
 class Helper
-{   
+{
     protected $retriever;
     protected $finder;
 
@@ -20,7 +20,6 @@ class Helper
         collect($this->finder->data())->map(function ($relations, $model) {
             $this->defineInverseRelationship($relations, $model);
         });
-
     }
 
     public function getFinder(): Finder
@@ -47,9 +46,8 @@ class Helper
         }
     }
 
-
     public function retriever(Closure $closure)
-    {   
+    {
         $this->retriever = $closure;
 
         return $this;
@@ -77,12 +75,12 @@ class Helper
             return [];
         }
 
-        return include $this->getFilePath(); 
+        return include $this->getFilePath();
     }
 
     public function setRelationsStorage($content)
     {
-        file_put_contents($this->getFilePath(), "<?php return ".var_export($content, true).";");
+        file_put_contents($this->getFilePath(), '<?php return '.var_export($content, true).';');
     }
 
     public function generateModel(string $model)
@@ -98,7 +96,6 @@ class Helper
         $this->setRelationsStorage($content);
     }
 
-
     public function defineInverseRelationship(array $relations, string $model)
     {
         $morphName = $model::getStaticMorphName();
@@ -112,25 +109,19 @@ class Helper
                     $related::has_many($methodPlural, $model);
                 }
 
-                if ($relation->type === 'MorphToMany' ) {
-
+                if ($relation->type === 'MorphToMany') {
                     if (isset($relation->morphType)) {
-
-                        $key = str_replace("_type", "", $relation->morphType);
+                        $key = str_replace('_type', '', $relation->morphType);
 
                         $related::morphed_by_many($methodPlural, $model, $key, $relation->table, $relation->relatedPivotKey, $relation->foreignPivotKey)->using($relation->intermediate);
                     }
-
                 }
             }
         });
     }
 
-
     public function getFilePath()
     {
         return base_path('bootstrap/cache/relations.php');
     }
-
 }
-

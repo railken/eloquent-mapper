@@ -2,12 +2,9 @@
 
 namespace Railken\EloquentMapper;
 
-use Closure;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Railken\Bag;
-use Railken\Cacheable\CacheableTrait;
 use Railken\Cacheable\CacheableContract;
+use Railken\Cacheable\CacheableTrait;
 
 class Mapper implements CacheableContract
 {
@@ -18,6 +15,7 @@ class Mapper implements CacheableContract
     public static function relations(string $class)
     {
         $finder = new RelationFinder();
+
         return $finder->getModelRelations($class)->toArray();
 
         foreach ($relations as $key => $relation) {

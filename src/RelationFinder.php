@@ -3,11 +3,11 @@
 namespace Railken\EloquentMapper;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
-use Illuminate\Database\Eloquent\Relations\Relation; 
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Railken\Bag;
 use ReflectionClass;
@@ -43,8 +43,6 @@ class RelationFinder
             ->reject(function (ReflectionFunctionAbstract $functionAbstract) {
                 return $functionAbstract->getNumberOfParameters() > 0 || !is_subclass_of((string) $functionAbstract->getReturnType(), Relation::class);
             });
-        
-
 
         $relations = Collection::make();
 
@@ -54,7 +52,6 @@ class RelationFinder
         $property = $class->getProperty('dynamicRelations');
         $property->setAccessible(true);
         $methods = $methods->merge(Collection::make($property->getValue('dynamicRelations'))->keys());
-
 
         $methods->map(function (string $functionName) use ($model, &$relations) {
             try {
@@ -117,7 +114,8 @@ class RelationFinder
             });
     }
 
-    protected function accessProtected($obj, $prop) {
+    protected function accessProtected($obj, $prop)
+    {
         $reflection = new ReflectionClass($obj);
         $property = $reflection->getProperty($prop);
         $property->setAccessible(true);
@@ -146,7 +144,7 @@ class RelationFinder
                 'model'      => (new ReflectionClass($return->getRelated()))->getName(),
                 'localKey'   => $localKey,
                 'foreignKey' => $foreignKey,
-                'scope' => $this->getScopeRelation($return)
+                'scope'      => $this->getScopeRelation($return),
             ]);
 
             if ($return instanceof MorphOneOrMany || $return instanceof MorphToMany) {
@@ -184,7 +182,6 @@ class RelationFinder
         }
     }
 
-
     protected function getScopeRelation($relation)
     {
         $relationBuilder = $relation->getQuery();
@@ -194,9 +191,7 @@ class RelationFinder
         $return = [];
 
         foreach ($wheres as $n => $clause) {
-
             if ('Basic' === $clause['type']) {
-
                 if ($n === 0) {
                     $partsColumn = explode('.', $clause['column']);
 
@@ -204,7 +199,7 @@ class RelationFinder
                         $clause['column'] = implode('.', array_slice($partsColumn, 1));
                     }
                 }
-                
+
                 $return[] = $clause;
             }
         }

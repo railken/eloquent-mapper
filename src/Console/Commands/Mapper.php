@@ -21,5 +21,6 @@ class Mapper extends Command
     public function handle()
     {
         app('eloquent.mapper')->boot();
+        $this->info("Generated!");
     }
 }

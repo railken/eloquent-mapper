@@ -101,7 +101,13 @@ class Helper
         $morphName = $model::getStaticMorphName();
 
         collect($relations)->map(function ($relation, $key) use ($model, $morphName) {
+
             $related = $relation->model;
+
+            if (!method_exists($related, 'getDynamicRelations')) {
+                return;
+            }
+
             $methodPlural = Str::plural($morphName);
 
             if (!method_exists($related, $methodPlural)) {

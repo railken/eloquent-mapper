@@ -119,7 +119,7 @@ class Helper
                     if (isset($relation->morphType)) {
                         $key = str_replace('_type', '', $relation->morphType);
 
-                        $related::morphed_by_many($methodPlural, $model, $key, $relation->table, $relation->relatedPivotKey, $relation->foreignPivotKey)->using($relation->intermediate);
+                        // $related::morphed_by_many($methodPlural, $model, $key, $relation->table, $relation->relatedPivotKey, $relation->foreignPivotKey)->using($relation->intermediate);
                     }
                 }
             }

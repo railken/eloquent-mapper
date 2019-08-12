@@ -2,7 +2,11 @@
 
 namespace Railken\EloquentMapper\Events;
 
-class EloquentMapUpdate
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
+class EloquentMapUpdate implements ShouldBroadcast
 {
 	/**
 	 * @var string
@@ -16,4 +20,19 @@ class EloquentMapUpdate
 	{
 		$this->model = $model;
 	}
+
+    public function broadcastAs()
+    {
+        return 'update';
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return Channel|array
+     */
+    public function broadcastOn()
+    {
+        return new Channel('mapper');
+    }
 }

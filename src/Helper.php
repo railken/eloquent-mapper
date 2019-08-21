@@ -17,9 +17,18 @@ class Helper
         $this->finder = new Finder($this->getRelationsByStorage());
 
         // Inversed relationships must be reloaded.
-        collect($this->finder->data())->map(function ($relations, $model) {
-            $this->defineInverseRelationship($relations, $model);
-        });
+        foreach ($this->finder->data() as $model => $relations) {
+
+            if (!class_exists($model)) {
+
+                // not valid anymore.
+                $this->removeRelationsByStorage();
+                $this->finder->removeData($model);
+
+            } else {
+                $this->defineInverseRelationship($relations, $model);
+            }
+        };
     }
 
     public function getFinder(): Finder
@@ -66,6 +75,13 @@ class Helper
 
         if (!file_exists(dirname($filePath))) {
             mkdir(dirname($filePath), 0755, true);
+        }
+    }
+
+    public function removeRelationsByStorage()
+    {
+        if (file_exists($this->getFilePath())) {
+            unlink($this->getFilePath());
         }
     }
 

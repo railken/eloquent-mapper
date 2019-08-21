@@ -73,6 +73,11 @@ class Finder
         return $this->data;
     }
 
+    public function removeData($key)
+    {
+        unset($this->data[$key]);
+    }
+
     public function relations(string $class)
     {
         return isset($this->data[$class]) ? $this->data[$class] : [];

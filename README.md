@@ -5,7 +5,8 @@
 A sets of class that will enhance eloquent for querying data.
 
 - Generate a list of all existing relationships
-- Generate inverse relationships automatically [laravel-eloquent-join](https://github.com/fico7489/laravel-eloquent-join)
+- Generate all join based on relationships defined [laravel-eloquent-join](https://github.com/fico7489/laravel-eloquent-join)
+- Generate inverse relationships
 - Filter query with complex expression [lara-eye](https://github.com/railken/lara-eye)
 - Attach dynamic relationships without touching the code using [eloquent-relativity](https://github.com/imanghafoori1/eloquent-relativity)
 

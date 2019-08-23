@@ -48,7 +48,7 @@ class FilterScope
         $keys = $this->explodeKeysWithAttributes($model, $relations);
 
         // Attach with
-        foreach ($this->with as $relation) {
+        foreach (array_intersect($this->with, $relations->toArray()) as $relation) {
             if (!empty($relation)) {
                 $builder->with($relation);
             }

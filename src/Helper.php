@@ -135,7 +135,12 @@ class Helper
                     if (isset($relation->morphType)) {
                         $key = str_replace('_type', '', $relation->morphType);
 
-                        $related::morphed_by_many($methodPlural, $model, $key, $relation->table, $relation->relatedPivotKey, $relation->foreignPivotKey)->using($relation->intermediate);
+                        $newRelation = $related::morphed_by_many($methodPlural, $model, $key, $relation->table, $relation->relatedPivotKey, $relation->foreignPivotKey)
+                            ->using($relation->intermediate);
+
+                        foreach (array_slice($relation->scope, 1) as $scope) {
+                            $newRelation->where($scope['column'], $scope['operator'], $scope['value']);
+                        }
                     }
                 }
             }

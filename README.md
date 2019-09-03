@@ -1,6 +1,6 @@
 <h1 align="center"> Eloquent Mapper </h1>
 
-<h2 align="center">:gem: Auto-generate your eloquent relations by artisan</h2>
+<h2 align="center">:gem: Auto-generates your eloquent relations by artisan :gem:</h2>
 
 [![Build Status](https://travis-ci.org/railken/eloquent-mapper.svg?branch=master)](https://travis-ci.org/railken/eloquent-mapper)
 

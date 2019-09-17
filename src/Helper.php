@@ -124,7 +124,8 @@ class Helper
                 return;
             }
 
-            $methodPlural = Str::plural($morphName);
+            $inflector = new \Doctrine\Common\Inflector\Inflector;
+            $methodPlural = $inflector->camelize(Str::plural($morphName));
 
             if (!method_exists($related, $methodPlural)) {
                 if ($relation->type === 'BelongsTo') {

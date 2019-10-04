@@ -12,6 +12,7 @@ use Railken\SQ\Languages\BoomTree\Nodes\Node;
 use Closure;
 use Illuminate\Support\Collection;
 use Railken\EloquentMapper\Joiner;
+use Railken\Bag;
 
 class FilterScope
 {
@@ -19,12 +20,17 @@ class FilterScope
     protected $filter;
     protected $with;
     protected $keys;
+    protected static $builders = null;
 
     public function __construct(Closure $retriever, string $filter, array $with = [])
     {
         $this->retriever = $retriever;
         $this->filter = $filter;
         $this->with = $with;
+
+        if (static::$builders === null) {
+            static::$builders = new Bag();
+        }
     }
 
     /**
@@ -42,7 +48,7 @@ class FilterScope
         $keys = $this->extractFilterKeys($filter->getParser()->parse($this->filter));
 
         // Extract all relations from keys
-        $relations = $this->filterKeysByRelations($model, $keys);
+        $relations = $this->filterKeysByRelations($builder, $model, $keys);
             
         // Create a correct collection of keys based on relations and exploded attributes
         $keys = $this->explodeKeysWithAttributes($model, $relations);
@@ -57,7 +63,9 @@ class FilterScope
         // Create relations based on relations
         $joiner = new Joiner($builder);
         foreach ($relations as $relation) {
-            $joiner->joinRelations($relation);
+            if (!$this->isRelationAlreadyAppliedToBuilder($builder, $relation)) {
+                $joiner->joinRelations($relation);
+            }
         }
 
         // Use $keys to create a more correct filter
@@ -92,12 +100,13 @@ class FilterScope
     /**
      * Filter all keys by checking if is a relation with the $model
      *
+     * @param Builder $builder
      * @param Model $model
      * @param Collection $collection
      *
      * @return Collection
      */
-    public function filterKeysByRelations(Model $model, Collection $keys): Collection
+    public function filterKeysByRelations(Builder $builder, Model $model, Collection $keys): Collection
     {
         return $keys->map(function ($element) {
             return implode('.', array_slice(explode('.', $element), 0, -1));
@@ -106,6 +115,20 @@ class FilterScope
         })->filter(function ($item) use ($model) {
             return app('eloquent.mapper')->getFinder()->isValidNestedRelation(get_class($model), $item);
         });
+    }
+
+    public function isRelationAlreadyAppliedToBuilder(Builder $builder, $item)
+    {
+        $id = spl_object_hash($builder);
+        $key = $id.".".$item;
+        
+        if (static::$builders->has($key)) {
+            return true;
+        }
+        
+        static::$builders->set($key, true);
+
+        return false;
     }
 
     /**

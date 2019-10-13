@@ -19,14 +19,16 @@ class FilterScope
     protected $retriever;
     protected $filter;
     protected $with;
+    protected $conditionalWith;
     protected $keys;
     protected static $builders = null;
 
-    public function __construct(Closure $retriever, string $filter, array $with = [])
+    public function __construct(Closure $retriever, string $filter, array $with = [], array $conditionalWith = [])
     {
         $this->retriever = $retriever;
         $this->filter = $filter;
         $this->with = $with;
+        $this->conditionalWith = $conditionalWith;
 
         if (static::$builders === null) {
             static::$builders = new Bag();
@@ -36,10 +38,10 @@ class FilterScope
     /**
      * Apply the scope to a given Eloquent query builder.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $builder
+     * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
      * @param \Illuminate\Database\Eloquent\Model $model
      */
-    public function apply(Builder $builder, Model $model)
+    public function apply($builder, Model $model)
     {
         // Use parser of filter to retrieve nodes
         $filter = new Filter($model->getTable(), ['*']);
@@ -54,9 +56,22 @@ class FilterScope
         $keys = $this->explodeKeysWithAttributes($model, $relations);
 
         // Attach with
-        foreach (array_intersect($this->with, $relations->toArray()) as $relation) {
-            if (!empty($relation)) {
-                $builder->with($relation);
+        foreach ($this->with as $relation) {
+
+            $resolvedRelations = app('eloquent.mapper')->getFinder()->resolveRelation(get_class($model), $relation);
+
+            if ($resolvedRelations->count() !== 0) {
+
+                $resolvedRelation = $resolvedRelations[$relation];
+
+                $builder->with([$relation => function ($query) use ($relation, $resolvedRelation) {
+
+                    if (isset($this->conditionalWith[$relation])) {
+                        $innerScope = new self($this->retriever, $this->conditionalWith[$relation]);
+                        $innerScope->apply($query, new $resolvedRelation->model);
+                    }
+
+                }]);
             }
         }
 
@@ -100,13 +115,13 @@ class FilterScope
     /**
      * Filter all keys by checking if is a relation with the $model
      *
-     * @param Builder $builder
+     * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
      * @param Model $model
      * @param Collection $collection
      *
      * @return Collection
      */
-    public function filterKeysByRelations(Builder $builder, Model $model, Collection $keys): Collection
+    public function filterKeysByRelations($builder, Model $model, Collection $keys): Collection
     {
         return $keys->map(function ($element) {
             return implode('.', array_slice(explode('.', $element), 0, -1));
@@ -117,7 +132,10 @@ class FilterScope
         });
     }
 
-    public function isRelationAlreadyAppliedToBuilder(Builder $builder, $item)
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
+     */
+    public function isRelationAlreadyAppliedToBuilder($builder, $item)
     {
         $id = spl_object_hash($builder);
         $key = $id.".".$item;

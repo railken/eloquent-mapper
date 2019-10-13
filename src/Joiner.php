@@ -9,7 +9,10 @@ class Joiner
 {
     protected $builder;
 
-    public function __construct(Builder $builder)
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
+     */
+    public function __construct($builder)
     {
         $this->builder = new JoinBuilder($builder->getQuery());
         $this->builder->setModel($builder->getModel());

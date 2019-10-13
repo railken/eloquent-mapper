@@ -7,7 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Builder extends EloquentJoinBuilder
-{
+{   
+	/**
+     * Create a new Eloquent query builder instance.
+     *
+     * @param mixed $query
+     */
+    public function __construct($query)
+    {
+        $this->query = $query;
+    }
+
     protected function parseAlias(Model $relatedModel, array $relations): string
     {
         return implode('.', $relations);

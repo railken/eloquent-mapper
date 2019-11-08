@@ -76,7 +76,7 @@ class FilterScope
         }
 
         // Create relations based on relations
-        $joiner = new Joiner($builder);
+        $joiner = new Joiner($builder, $model);
         foreach ($relations as $relation) {
             if (!$this->isRelationAlreadyAppliedToBuilder($builder, $relation)) {
                 $joiner->joinRelations($relation);

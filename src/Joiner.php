@@ -11,11 +11,12 @@ class Joiner
 
     /**
      * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
+     * @param $model
      */
-    public function __construct($builder)
+    public function __construct($builder, $model = null)
     {
         $this->builder = new JoinBuilder($builder->getQuery());
-        $this->builder->setModel($builder->getModel());
+        $this->builder->setModel($model ? $model : $builder->getModel());
     }
 
     public function joinRelations(string $relation)

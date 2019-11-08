@@ -1,7 +1,7 @@
 {
     "name": "railken/eloquent-mapper",
     "type": "library",
-    "keywords": ["laravel", "amethyst", "eloquent-mapper"],
+    "keywords": ["laravel", "eloquent-mapper"],
     "license": "MIT",
     "require": {
         "php": ">=7.1",

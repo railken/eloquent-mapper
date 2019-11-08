@@ -200,6 +200,10 @@ class RelationFinder
                     }
                 }
 
+                if ($clause['column'] instanceof \Illuminate\Database\Query\Expression) {
+                    $clause['column'] = new \Railken\EloquentMapper\Expression($clause['column']->getValue());
+                }
+
                 $return[] = $clause;
             }
         }

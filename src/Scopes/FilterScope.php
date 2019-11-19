@@ -12,7 +12,6 @@ use Railken\SQ\Languages\BoomTree\Nodes\Node;
 use Closure;
 use Illuminate\Support\Collection;
 use Railken\EloquentMapper\Joiner;
-use Railken\Bag;
 
 class FilterScope
 {
@@ -21,7 +20,6 @@ class FilterScope
     protected $with;
     protected $conditionalWith;
     protected $keys;
-    protected static $builders = null;
 
     public function __construct(Closure $retriever, string $filter, array $with = [], array $conditionalWith = [])
     {
@@ -29,10 +27,6 @@ class FilterScope
         $this->filter = $filter;
         $this->with = $with;
         $this->conditionalWith = $conditionalWith;
-
-        if (static::$builders === null) {
-            static::$builders = new Bag();
-        }
     }
 
     /**
@@ -137,14 +131,16 @@ class FilterScope
      */
     public function isRelationAlreadyAppliedToBuilder($builder, $item)
     {
-        $id = spl_object_hash($builder);
-        $key = $id.".".$item;
-        
-        if (static::$builders->has($key)) {
-            return true;
+        $query = $builder->getQuery();
+
+        foreach((array) $query->joins as $joinClause) {
+            $table = explode(" as ", $joinClause->table);
+            $table = count($table) == 2 ? $table[1] : $table[0];
+
+            if ($table === $item) {
+                return true;
+            }
         }
-        
-        static::$builders->set($key, true);
 
         return false;
     }

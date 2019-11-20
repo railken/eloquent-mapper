@@ -75,15 +75,24 @@ abstract class Base
         return $this->targetTale;
     }
 
-    public function joinQuery($join, $relation, $relatedTableAlias, $currentTableAlias)
+    public function applyFilters($join, $relation, $targetTable, $sourceTable)
     {
-        /** @var Builder $relationQuery */
-        $relationBuilder = $relation->getQuery();
+        $this->applyWhere($join, $relation, $targetTable, $sourceTable);
+    }
 
-        $wheres = array_slice($relationBuilder->getQuery()->wheres, $this->skipClausesByClassRelation);
+    public function applyWhere($join, $relation, $targetTable, $sourceTable)
+    {
+        $relationBuilder = $relation->getQuery();
+        $relationBuilder = $relationBuilder->applyScopes();
+
+        $wheres = array_slice(
+            $relationBuilder->getQuery()->wheres,
+            $this->skipClausesByClassRelation
+        );
 
         foreach ($wheres as $clause) {
             $method = 'Basic' === $clause['type'] ? 'where' : 'where'.$clause['type'];
+
             unset($clause['type']);
 
             // Remove first alias table name
@@ -96,15 +105,15 @@ abstract class Base
             }
 
             if ($relation instanceof Relations\BelongsToMany && $tableName === $relation->getTable()) {
-                $clause['column'] = $this->parseAliasableKey($currentTableAlias, $clause['column']); 
+                $clause['column'] = $this->parseAliasableKey($sourceTable, $clause['column']); 
             } else {
-                $clause['column'] = $this->parseAliasableKey($relatedTableAlias, $clause['column']); 
+                $clause['column'] = $this->parseAliasableKey($targetTable, $clause['column']); 
             }
 
             $join->$method(...array_values($clause));
         }
-
     }
+
 
     public function getKeyFromRelation(Relation $relation, string $keyName)
     {

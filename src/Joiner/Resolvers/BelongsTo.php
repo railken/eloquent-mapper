@@ -26,7 +26,7 @@ class BelongsTo extends Base
                 $this->parseAliasableKey($this->getTargetTable(), $targetKey)
             );
 
-            $this->joinQuery($join, $relation, $this->getTargetTable(), $this->getSourceTable());
+            $this->applyFilters($join, $relation, $this->getTargetTable(), $this->getSourceTable());
         });
 	}
 }

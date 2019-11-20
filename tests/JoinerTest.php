@@ -14,6 +14,8 @@ class JoinerTest extends BaseTest
 
         app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'author');
 
-        $this->assertEquals('select * from `books` left join `authors` as `author` on `books`.`author_id` = `author`.`id`', $qb->toSql());
+        $this->assertEquals('select * from `books` left join `authors` as `author` on `books`.`author_id` = `author`.`id` and `author`.`deleted_at` is null', $qb->toSql());
+
+
     }
 }

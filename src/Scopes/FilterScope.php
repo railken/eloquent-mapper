@@ -133,9 +133,13 @@ class FilterScope
     {
         $query = $builder->getQuery();
 
+        print_r("\n\n\n\nTrying:".$item."\n\n");
+
         foreach((array) $query->joins as $joinClause) {
             $table = explode(" as ", $joinClause->table);
             $table = count($table) == 2 ? $table[1] : $table[0];
+
+            print_r($joinClause->table." : ".$table."\n");
 
             if ($table === $item) {
                 return true;

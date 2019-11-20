@@ -13,9 +13,11 @@ class EloquentMapperServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('eloquent.mapper', function ($app) {
-            return new \Railken\EloquentMapper\Helper();
-        });
+        $this->app->singleton('eloquent.mapper', \Railken\EloquentMapper\Helper::class);
+        $this->app->bind(\Railken\EloquentMapper\Contracts\Joiner::class, \Railken\EloquentMapper\Joiner\Joiner::class);
+
+
+
     }
 
     public function boot()

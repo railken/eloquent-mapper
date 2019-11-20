@@ -7,8 +7,4 @@ use Illuminate\Database\Eloquent\Relations;
 
 class Tag extends Model
 {
-    public function taggable(): Relations\MorphTo
-    {
-        return $this->morphTo();
-    }
 }

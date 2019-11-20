@@ -13,7 +13,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~7.0",
-        "orchestra/testbench": "3.*"
+        "orchestra/testbench": "3.*",
+        "nilportugues/sql-query-formatter": "^1.2"
     },
     "autoload": {
         "psr-4" : {

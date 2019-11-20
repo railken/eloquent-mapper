@@ -19,6 +19,14 @@ class Joiner implements JoinerContract
         $this->resolvers = new Collection();
         $this->resolvers = $this->resolvers->merge([
             Relations\BelongsTo::class => Resolvers\BelongsTo::class,
+
+            Relations\BelongsToMany::class => Resolvers\BelongsToMany::class,
+            Relations\MorphToMany::class => Resolvers\BelongsToMany::class,
+            
+            Relations\HasOneOrMany::class => Resolvers\HasOneOrMany::class,
+            Relations\MorphMany::class => Resolvers\HasOneOrMany::class,
+            Relations\MorphOne::class => Resolvers\HasOneOrMany::class,
+            Relations\MorphOneOrMany::class => Resolvers\HasOneOrMany::class,
         ]);
     }
 
@@ -60,9 +68,10 @@ class Joiner implements JoinerContract
             $relatedRelation   = $currentModel->$relation();
             $relatedModel      = $relatedRelation->getRelated();
             $relatedTable      = $relatedModel->getTable();
-            $relatedTableAlias = $this->parseAlias(array_slice($relations, 0, $i + 1));
+            $relationName = $this->parseAlias(array_slice($relations, 0, $i + 1));
 
-            $joinQuery = $relatedModel->getTable().($relatedModel->getTable() !== $relation ? ' as '.$relation : '');
+
+            $joinQuery = $relatedModel->getTable().($relatedModel->getTable() !== $relationName ? ' as '.$relationName : '');
 
             // @TODO, check if same joinQuery is already in $builder
 
@@ -73,11 +82,12 @@ class Joiner implements JoinerContract
                     $resolver = new $resolverClass;
 
                     $resolver
+                        ->setRelationName($relationName)
                         ->setMethod($method)
                         ->setJoinQuery($joinQuery)
                         ->setRelation($relatedRelation)
                         ->setSourceTable($currentTableAlias)
-                        ->setTargetTable($relatedTableAlias)
+                        ->setTargetTable($relationName)
                     ;
 
                     $resolver->resolve($builder);
@@ -87,7 +97,7 @@ class Joiner implements JoinerContract
             }
 
             $currentModel      = $relatedModel;
-            $currentTableAlias = $relatedTableAlias;
+            $currentTableAlias = $relationName;
         }
     }
 

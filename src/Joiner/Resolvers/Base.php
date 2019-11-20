@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 abstract class Base
 {   
     protected $relation;
+    protected $relationName;
     protected $joinQuery;
     protected $method;
     protected $sourceTable;
@@ -25,6 +26,18 @@ abstract class Base
     public function getRelation(): Relation
     {
         return $this->relation;
+    }
+
+    public function setRelationName(string $relationName): Base
+    {   
+        $this->relationName = $relationName;
+
+        return $this;
+    }
+
+    public function getRelationName(): string
+    {
+        return $this->relationName;
     }
 
     public function setJoinQuery(string $joinQuery): Base
@@ -75,20 +88,11 @@ abstract class Base
         return $this->targetTale;
     }
 
-    public function applyFilters($join, $relation, $targetTable, $sourceTable)
-    {
-        $this->applyWhere($join, $relation, $targetTable, $sourceTable);
-    }
-
-    public function applyWhere($join, $relation, $targetTable, $sourceTable)
+    public function applyWhere($join, $relation, $targetTable, $sourceTable, int $min = 0, int $max = null)
     {
         $relationBuilder = $relation->getQuery();
         $relationBuilder = $relationBuilder->applyScopes();
-
-        $wheres = array_slice(
-            $relationBuilder->getQuery()->wheres,
-            $this->skipClausesByClassRelation
-        );
+        $wheres = array_slice($relationBuilder->getQuery()->wheres, $min, $max);
 
         foreach ($wheres as $clause) {
             $method = 'Basic' === $clause['type'] ? 'where' : 'where'.$clause['type'];
@@ -104,7 +108,7 @@ abstract class Base
                 $clause['column'] = implode('.', array_slice($partsColumn, 1));
             }
 
-            if ($relation instanceof Relations\BelongsToMany && $tableName === $relation->getTable()) {
+            if ($max === -1 && $relation instanceof Relations\BelongsToMany && $tableName === $relation->getTable()) {
                 $clause['column'] = $this->parseAliasableKey($sourceTable, $clause['column']); 
             } else {
                 $clause['column'] = $this->parseAliasableKey($targetTable, $clause['column']); 
@@ -113,7 +117,6 @@ abstract class Base
             $join->$method(...array_values($clause));
         }
     }
-
 
     public function getKeyFromRelation(Relation $relation, string $keyName)
     {
@@ -129,7 +132,12 @@ abstract class Base
             return $relation->$getKeyMethod();
         }
 
-        throw new \Exception("...");
+        $reflection = new \ReflectionClass($relation);
+        $property = $reflection->getProperty($keyName);
+        $property->setAccessible(true);
+        return $property->getValue($relation);
+
+        throw new \Exception(sprintf("Cannot retrieve %s from %s", $keyName, get_class($relation)));
     }
 
     protected function parseAliasableKey(string $alias, string $key)
@@ -139,4 +147,15 @@ abstract class Base
     
     abstract public function resolve(Builder $builder);
 
+    public function toArray(): array
+    {
+        return [
+            'relationName' => $this->getRelationName(),
+            'relation' => $this->getRelation(),
+            'method' => $this->getMethod(),
+            'joinQuery' => $this->getJoinQuery(),
+            'sourceTable' => $this->getSourceTable(),
+            'targetTable' => $this->getTargetTable()
+        ];
+    }
 }

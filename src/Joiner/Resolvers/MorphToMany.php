@@ -5,7 +5,7 @@ namespace Railken\EloquentMapper\Joiner\Resolvers;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Builder;
 
-class BelongsToMany extends Base
+class MorphToMany extends Base
 {	
 	
 	public function resolve(Builder $builder)
@@ -28,6 +28,8 @@ class BelongsToMany extends Base
 	                '=', 
 	                $this->parseAliasableKey($pivotTableAlias, $pivotKey)
 	            );
+
+	            $this->applyWhere($join, $relation, $pivotTableAlias, 1, 1);
 			});
 		}
 		

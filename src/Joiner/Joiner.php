@@ -20,8 +20,9 @@ class Joiner implements JoinerContract
         $this->resolvers = $this->resolvers->merge([
             Relations\BelongsTo::class => Resolvers\BelongsTo::class,
 
+            Relations\MorphToMany::class => Resolvers\MorphToMany::class,
+
             Relations\BelongsToMany::class => Resolvers\BelongsToMany::class,
-            Relations\MorphToMany::class => Resolvers\BelongsToMany::class,
             
             Relations\HasOneOrMany::class => Resolvers\HasOneOrMany::class,
             Relations\MorphMany::class => Resolvers\HasOneOrMany::class,

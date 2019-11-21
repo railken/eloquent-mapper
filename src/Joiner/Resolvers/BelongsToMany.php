@@ -20,8 +20,8 @@ class BelongsToMany extends Base
 			$builder->$method($table." as ".$pivotTableAlias, function ($join) use ($pivotTableAlias) {
 				$relation = $this->getRelation();
 
-		        $sourceKey = $this->getKeyFromRelation($relation, 'relatedKey');
-		        $pivotKey = $this->getKeyFromRelation($relation, 'relatedPivotKey');
+		        $sourceKey = $this->getKeyFromRelation($relation, 'parentKey');
+		        $pivotKey = $this->getKeyFromRelation($relation, 'foreignPivotKey');
 
 	            $join->on(
 	                $this->parseAliasableKey($this->getSourceTable(), $sourceKey),
@@ -41,8 +41,8 @@ class BelongsToMany extends Base
 
 				$relation = $this->getRelation();
 
-		        $pivotKey = $this->getKeyFromRelation($relation, 'foreignPivotKey');
-		        $targetKey = $this->getKeyFromRelation($relation, 'parentKey');
+		        $pivotKey = $this->getKeyFromRelation($relation, 'relatedPivotKey');
+		        $targetKey = $this->getKeyFromRelation($relation, 'relatedKey');
 
 	            $join->on(
 	                $this->parseAliasableKey($pivotTableAlias, $pivotKey),
@@ -53,7 +53,6 @@ class BelongsToMany extends Base
 	            $this->applyWhere($join, $relation, $pivotTableAlias, 2);
 	        });
 		}
-
 	}
 
 	public function solveColumnWhere($alias, $tableName, $column)

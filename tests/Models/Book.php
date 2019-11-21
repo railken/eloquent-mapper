@@ -21,8 +21,8 @@ class Book extends Model
             Tag::class,
             'source',
             'relations',
-            'target_id',
-            'source_id'
+            'source_id',
+            'target_id'
         )
         ->using(Relation::class)
         ->withPivotValue('target_type', Tag::class)

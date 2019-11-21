@@ -88,7 +88,18 @@ abstract class Base
         return $this->targetTale;
     }
 
-    public function applyWhere($join, $relation, $targetTable, $sourceTable, int $min = 0, int $max = null)
+    public function isAlreadyJoined($builder, $query)
+    {
+        foreach ((array) $builder->getQuery()->joins as $join) {
+            if ($join->table === $query) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function applyWhere($join, $relation, $alias, int $min = 0, int $max = null)
     {
         $relationBuilder = $relation->getQuery();
         $relationBuilder = $relationBuilder->applyScopes();
@@ -102,17 +113,11 @@ abstract class Base
             // Remove first alias table name
             $partsColumn = explode('.', $clause['column']);
 
-            $tableName = $partsColumn[0];
-
             if (count($partsColumn) > 1) {
-                $clause['column'] = implode('.', array_slice($partsColumn, 1));
+                $column = implode('.', array_slice($partsColumn, 1));
+                $clause['column'] = $this->solveColumnWhere($alias, $partsColumn[0], $column);
             }
 
-            if ($max === -1 && $relation instanceof Relations\BelongsToMany && $tableName === $relation->getTable()) {
-                $clause['column'] = $this->parseAliasableKey($sourceTable, $clause['column']); 
-            } else {
-                $clause['column'] = $this->parseAliasableKey($targetTable, $clause['column']); 
-            }
 
             $join->$method(...array_values($clause));
         }

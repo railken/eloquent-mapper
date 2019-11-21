@@ -13,40 +13,63 @@ class BelongsToMany extends Base
 		$method = $this->getMethod();
 		$table = $this->getRelation()->getTable();
 		
-		$pivotTableAlias = $this->getRelationName()."_pivot";
+		$pivotTableAlias = $this->getPivotTable();
 		
-		$builder->$method($table." as ".$pivotTableAlias, function ($join) use ($pivotTableAlias) {
-			$relation = $this->getRelation();
+		if (!$this->isAlreadyJoined($builder, $table." as ".$pivotTableAlias)) {
 
-	        $sourceKey = $this->getKeyFromRelation($relation, 'relatedKey');
-	        $pivotKey = $this->getKeyFromRelation($relation, 'relatedPivotKey');
+			$builder->$method($table." as ".$pivotTableAlias, function ($join) use ($pivotTableAlias) {
+				$relation = $this->getRelation();
 
-            $join->on(
-                $this->parseAliasableKey($this->getSourceTable(), $sourceKey),
-                '=', 
-                $this->parseAliasableKey($pivotTableAlias, $pivotKey)
-            );
+		        $sourceKey = $this->getKeyFromRelation($relation, 'relatedKey');
+		        $pivotKey = $this->getKeyFromRelation($relation, 'relatedPivotKey');
 
-            $this->applyWhere($join, $relation, $pivotTableAlias, $this->getSourceTable(), 1, 1);
-		});
+	            $join->on(
+	                $this->parseAliasableKey($this->getSourceTable(), $sourceKey),
+	                '=', 
+	                $this->parseAliasableKey($pivotTableAlias, $pivotKey)
+	            );
 
+	            $this->applyWhere($join, $relation, $pivotTableAlias, 1, 1);
+			});
+		}
+		
 		$table = $this->getRelation()->getRelated()->getTable();
 
-		$builder->$method($table." as ".$this->getRelationName(), function ($join) use ($pivotTableAlias) {
+		if (!$this->isAlreadyJoined($builder, $table." as ".$this->getRelationName())) {
 
-			$relation = $this->getRelation();
+			$builder->$method($table." as ".$this->getRelationName(), function ($join) use ($pivotTableAlias) {
 
-	        $pivotKey = $this->getKeyFromRelation($relation, 'foreignPivotKey');
-	        $targetKey = $this->getKeyFromRelation($relation, 'parentKey');
+				$relation = $this->getRelation();
 
-            $join->on(
-                $this->parseAliasableKey($pivotTableAlias, $pivotKey),
-                '=', 
-                $this->parseAliasableKey($this->getTargetTable(), $targetKey)
-            );
+		        $pivotKey = $this->getKeyFromRelation($relation, 'foreignPivotKey');
+		        $targetKey = $this->getKeyFromRelation($relation, 'parentKey');
 
-            $this->applyWhere($join, $relation, $pivotTableAlias, $this->getTargetTable(), 2);
-        });
+	            $join->on(
+	                $this->parseAliasableKey($pivotTableAlias, $pivotKey),
+	                '=', 
+	                $this->parseAliasableKey($this->getTargetTable(), $targetKey)
+	            );
 
+	            $this->applyWhere($join, $relation, $pivotTableAlias, 2);
+	        });
+		}
+
+	}
+
+	public function solveColumnWhere($alias, $tableName, $column)
+	{
+		// Pivot
+		if ($tableName === $this->getRelation()->getTable()) {
+			return $this->parseAliasableKey($this->getPivotTable(), $column);
+		}
+
+		if ($tableName === $this->getRelation()->getRelated()->getTable()) {
+			return $this->parseAliasableKey($this->getRelationName(), $column);
+		}
+	}
+
+	public function getPivotTable()
+	{
+		return $this->getRelationName()."_pivot";
 	}
 }

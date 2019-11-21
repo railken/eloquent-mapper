@@ -25,6 +25,23 @@ class JoinerTest extends BaseTest
         ', $qb->toSql());
     }
 
+    public function testBelongsToDouble()
+    {
+        $qb = (new Book())->newQuery();
+        
+        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'author');
+        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'author');
+
+        $this->assertQuery('
+            SELECT *
+            FROM `books`
+            LEFT JOIN `authors` AS `author`
+                ON `books`.`author_id` = `author`.`id`
+                    AND `author`.`deleted_at` is null
+            WHERE `books`.`deleted_at` is null
+        ', $qb->toSql());
+    }
+
     public function testHasMany()
     {
         $qb = (new Author())->newQuery();
@@ -76,6 +93,7 @@ class JoinerTest extends BaseTest
         ', $qb->toSql());
     }
 
+
     public function testMorphToMany()
     {
         $qb = (new Book())->newQuery();
@@ -91,7 +109,8 @@ class JoinerTest extends BaseTest
             LEFT JOIN `tags` AS `tags`
                 ON `tags_pivot`.`target_id` = `tags`.`id` AND
                    `tags_pivot`.`target_type` = ? AND
-                   `tags_pivot`.`key` = ?
+                   `tags_pivot`.`key` = ? AND
+                   `tags`.`deleted_at` is null
             WHERE `books`.`deleted_at` is null
         ', $qb->toSql());
     }

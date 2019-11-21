@@ -68,12 +68,12 @@ class Joiner implements JoinerContract
             $relatedRelation   = $currentModel->$relation();
             $relatedModel      = $relatedRelation->getRelated();
             $relatedTable      = $relatedModel->getTable();
-            $relationName = $this->parseAlias(array_slice($relations, 0, $i + 1));
-
+            $relationName      = $this->parseAlias(array_slice($relations, 0, $i + 1));
 
             $joinQuery = $relatedModel->getTable().($relatedModel->getTable() !== $relationName ? ' as '.$relationName : '');
 
             // @TODO, check if same joinQuery is already in $builder
+
 
             foreach ($this->getResolvers()->toArray() as $key => $resolverClass) {
 

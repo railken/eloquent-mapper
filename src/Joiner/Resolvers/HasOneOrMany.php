@@ -11,20 +11,28 @@ class HasOneOrMany extends Base
 	{	
 		$method = $this->getMethod();
 
-        $builder->$method($this->getJoinQuery(), function ($join) {
+		if (!$this->isAlreadyJoined($builder, $this->getJoinQuery())) {
 
-			$relation = $this->getRelation();
+	        $builder->$method($this->getJoinQuery(), function ($join) {
 
-	        $targetKey = $this->getKeyFromRelation($relation, 'foreignKey');
-	        $sourceKey = $this->getKeyFromRelation($relation, 'parentKey');
+				$relation = $this->getRelation();
 
-            $join->on(
-                $this->parseAliasableKey($this->getSourceTable(), $sourceKey),
-                '=', 
-                $this->parseAliasableKey($this->getTargetTable(), $targetKey)
-            );
+		        $targetKey = $this->getKeyFromRelation($relation, 'foreignKey');
+		        $sourceKey = $this->getKeyFromRelation($relation, 'parentKey');
 
-            $this->applyWhere($join, $relation, $this->getTargetTable(), $this->getSourceTable(), 2);
-        });
+	            $join->on(
+	                $this->parseAliasableKey($this->getSourceTable(), $sourceKey),
+	                '=', 
+	                $this->parseAliasableKey($this->getTargetTable(), $targetKey)
+	            );
+
+	            $this->applyWhere($join, $relation, $this->getTargetTable(), 2);
+	        });
+    	}
+	}
+
+	public function solveColumnWhere($alias, $tableName, $column)
+	{
+		return $this->parseAliasableKey($this->getTargetTable(), $column);
 	}
 }

@@ -11,7 +11,6 @@ use Railken\SQ\Languages\BoomTree\Nodes\KeyNode;
 use Railken\SQ\Languages\BoomTree\Nodes\Node;
 use Closure;
 use Illuminate\Support\Collection;
-use Railken\EloquentMapper\Joiner;
 
 class FilterScope
 {
@@ -69,11 +68,11 @@ class FilterScope
             }
         }
 
-        // Create relations based on relations
-        $joiner = new Joiner($builder, $model);
+        $joiner = app(\Railken\EloquentMapper\Contracts\Joiner::class);
+
         foreach ($relations as $relation) {
             if (!$this->isRelationAlreadyAppliedToBuilder($builder, $relation)) {
-                $joiner->joinRelations($relation);
+                $joiner->leftJoin($builder, $relation, $model);
             }
         }
 
@@ -133,13 +132,9 @@ class FilterScope
     {
         $query = $builder->getQuery();
 
-        print_r("\n\n\n\nTrying:".$item."\n\n");
-
         foreach((array) $query->joins as $joinClause) {
             $table = explode(" as ", $joinClause->table);
             $table = count($table) == 2 ? $table[1] : $table[0];
-
-            print_r($joinClause->table." : ".$table."\n");
 
             if ($table === $item) {
                 return true;

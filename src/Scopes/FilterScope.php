@@ -10,6 +10,7 @@ use Railken\Lem\Contracts\ManagerContract;
 use Railken\SQ\Languages\BoomTree\Nodes\KeyNode;
 use Railken\SQ\Languages\BoomTree\Nodes\Node;
 use Closure;
+use Railken\Bag;
 use Illuminate\Support\Collection;
 
 class FilterScope
@@ -17,15 +18,57 @@ class FilterScope
     protected $retriever;
     protected $filter;
     protected $with;
-    protected $conditionalWith;
     protected $keys;
+    protected $onApply;
 
-    public function __construct(Closure $retriever, string $filter, array $with = [], array $conditionalWith = [])
+    public function __construct(Closure $retriever, string $filter, array $with = [])
     {
         $this->retriever = $retriever;
         $this->filter = $filter;
-        $this->with = $with;
-        $this->conditionalWith = $conditionalWith;
+        $this->with = $this->parseWith($with);
+        $this->onApply = function($query, $model) { };
+    }
+
+    public function parseWith($with)
+    {
+        return array_map(function ($element) {
+
+            if (is_array($element)) {
+                $element = (object) $element;
+            }
+
+            if (is_object($element)) {
+                return new Bag([
+                    'name' => $element->name,
+                    'query' => $element->query
+                ]);
+            }
+
+            if (is_string($element)) {
+                return new Bag([
+                    'name' => $element,
+                    'query' => ''
+                ]);
+            }
+
+            return new Bag();
+        }, $with);
+    }
+
+    public function getOnApply(): Closure
+    {
+        return $this->onApply;
+    }
+
+    public function setOnApply(Closure $onApply)
+    {
+        $this->onApply = $onApply;
+    }
+
+    public function onApply($query, $model)
+    {
+        $onApply = $this->onApply;
+        $onApply($query, $model);
     }
 
     /**
@@ -49,21 +92,22 @@ class FilterScope
         $keys = $this->explodeKeysWithAttributes($model, $relations);
 
         // Attach with
-        foreach ($this->with as $relation) {
+        foreach ($this->with as $with) {
 
-            $resolvedRelations = app('eloquent.mapper')->getFinder()->resolveRelation(get_class($model), $relation);
+
+            $resolvedRelations = app('eloquent.mapper')->getFinder()->resolveRelation(get_class($model), $with->name);
 
             if ($resolvedRelations->count() !== 0) {
 
-                $resolvedRelation = $resolvedRelations[$relation];
+                $resolvedRelation = $resolvedRelations[$with->name];
 
-                $builder->with([$relation => function ($query) use ($relation, $resolvedRelation) {
+                $builder->with([$with->name => function ($query) use ($with, $resolvedRelation) {
+                    $withModel = new $resolvedRelation->model;
+                    $innerScope = new self($this->retriever, $with->query);
+                    $innerScope->setOnApply($this->getOnApply());
+                    $innerScope->onApply($query, $withModel);
 
-                    if (isset($this->conditionalWith[$relation])) {
-                        $innerScope = new self($this->retriever, $this->conditionalWith[$relation]);
-                        $innerScope->apply($query, new $resolvedRelation->model);
-                    }
-
+                    $innerScope->apply($query, $withModel);
                 }]);
             }
         }
@@ -71,9 +115,7 @@ class FilterScope
         $joiner = app(\Railken\EloquentMapper\Contracts\Joiner::class);
 
         foreach ($relations as $relation) {
-            if (!$this->isRelationAlreadyAppliedToBuilder($builder, $relation)) {
-                $joiner->leftJoin($builder, $relation, $model);
-            }
+            $joiner->leftJoin($builder, $relation, $model);
         }
 
         // Use $keys to create a more correct filter
@@ -123,25 +165,6 @@ class FilterScope
         })->filter(function ($item) use ($model) {
             return app('eloquent.mapper')->getFinder()->isValidNestedRelation(get_class($model), $item);
         });
-    }
-
-    /**
-     * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
-     */
-    public function isRelationAlreadyAppliedToBuilder($builder, $item)
-    {
-        $query = $builder->getQuery();
-
-        foreach((array) $query->joins as $joinClause) {
-            $table = explode(" as ", $joinClause->table);
-            $table = count($table) == 2 ? $table[1] : $table[0];
-
-            if ($table === $item) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

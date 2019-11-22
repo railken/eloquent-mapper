@@ -40,16 +40,11 @@ abstract class Base
         return $this->relationName;
     }
 
-    public function setJoinQuery(string $joinQuery): Base
-    {   
-        $this->joinQuery = $joinQuery;
-
-        return $this;
-    }
-
     public function getJoinQuery(): string
     {
-        return $this->joinQuery;
+        $table = $this->getRelation()->getRelated()->getTable();
+
+        return $table === $this->getRelationName() ? $table : $table.' as '.$this->getRelationName();
     }
 
     public function setMethod(string $method): Base
@@ -148,6 +143,27 @@ abstract class Base
     protected function parseAliasableKey(string $alias, string $key)
     {
         return DB::raw('`'.$alias.'`.`'.$key.'`');
+    }
+
+    public function join(Builder $builder, string $sourceKey, string $targetKey, int $min)
+    {
+        $method = $this->getMethod();
+        
+        $builder->$method($this->getJoinQuery(), function ($join) use ($targetKey, $sourceKey, $min) {
+
+            $relation = $this->getRelation();
+
+            $targetKey = $this->getKeyFromRelation($relation, $targetKey);
+            $sourceKey = $this->getKeyFromRelation($relation, $sourceKey);
+
+            $join->on(
+                $this->parseAliasableKey($this->getSourceTable(), $sourceKey),
+                '=', 
+                $this->parseAliasableKey($this->getTargetTable(), $targetKey)
+            );
+
+            $this->applyWhere($join, $relation, null, $min);
+        });
     }
     
     abstract public function resolve(Builder $builder);

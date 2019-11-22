@@ -74,8 +74,6 @@ class Joiner implements JoinerContract
             $joinQuery = $relatedModel->getTable().($relatedModel->getTable() !== $relationName ? ' as '.$relationName : '');
 
             // @TODO, check if same joinQuery is already in $builder
-
-
             foreach ($this->getResolvers()->toArray() as $key => $resolverClass) {
 
                 if ($relatedRelation instanceof $key) {
@@ -85,7 +83,6 @@ class Joiner implements JoinerContract
                     $resolver
                         ->setRelationName($relationName)
                         ->setMethod($method)
-                        ->setJoinQuery($joinQuery)
                         ->setRelation($relatedRelation)
                         ->setSourceTable($currentTableAlias)
                         ->setTargetTable($relationName)

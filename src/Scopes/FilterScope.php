@@ -102,11 +102,12 @@ class FilterScope
                 $resolvedRelation = $resolvedRelations[$with->name];
 
                 $builder->with([$with->name => function ($query) use ($with, $resolvedRelation) {
+
                     $withModel = new $resolvedRelation->model;
                     $innerScope = new self($this->retriever, $with->query);
                     $innerScope->setOnApply($this->getOnApply());
+                    $query->select($withModel->getTable().".*");
                     $innerScope->onApply($query, $withModel);
-
                     $innerScope->apply($query, $withModel);
                 }]);
             }

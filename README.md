@@ -1,19 +1,12 @@
 <h1 align="left">Eloquent Mapper</h1>
 
-<h2 align="left">Stop wasting your time with boring joins and filters</h2>
+<h2 align="left">When relations, joins and filter become funny</h2>
 
 [![Build Status](https://travis-ci.org/railken/eloquent-mapper.svg?branch=master)](https://travis-ci.org/railken/eloquent-mapper)
 
-A sets of class that will enhance eloquent for querying data.
+This library will stop you from wasting your time with boring joins and filter, how?
 
-- Generate a list of all existing relationships
-- Join automatically your relations
-- Filter query with complex logic expression [lara-eye](https://github.com/railken/lara-eye)
-- Attach dynamic relationships without touching the code using [eloquent-relativity](https://github.com/imanghafoori1/eloquent-relativity)
-
-So, what actually does this library?
-
-Transform a string like this `"employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"` used on a model called for e.g. `Office` into a sql query like this
+Given for e.g. two models `Office` and `Employee` it transform a string like this `"employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"` into a sql query like this
 
 ```sql
 select offices.* 
@@ -21,6 +14,12 @@ select offices.*
     left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
     where (`employees`.`name` like ? or `employees`.`name` like ?)
 ```
+
+A sets of class that will enhance eloquent for querying data.
+
+- Join automatically your relations
+- Filter query with complex logic expression [lara-eye](https://github.com/railken/lara-eye)
+- Attach dynamic relationships without touching the code using [eloquent-relativity](https://github.com/imanghafoori1/eloquent-relativity)
 
 # Requirements
 
@@ -48,7 +47,6 @@ use Railken\EloquentMapper\Contracts\MapContract;
 
 class Map extends MapContract
 {
-
     /**
      * Return an array of all models you want to map
      *
@@ -85,7 +83,7 @@ These methods are invoked only when you call the command 'artisan mapper:generat
 
 This means you can perform whatever logic you want to retrieve all models (e.g. scanning files etc...) so don't worry about caching.
 
-Now register the class in the application
+Now it's time to register this class
 
 `app/Providers/AppServiceProvider.php`
 
@@ -110,7 +108,7 @@ class AppServiceProvider extends ServiceProvider
 
 ## Artisan
 
-There is only one command, and it's `artisan mapper:generate`. This command will reload and recache all relations so keep in mind that you have to execute it whanever you change your models.
+There is only one command, and it's `artisan mapper:generate`. This command will remap and recache so keep in mind that you have to execute it whanever you change your models.
 
 If you use models that are in your vendor folder, you could add this in your composer.json to reload everytime the libreries are updated.
 ```json
@@ -123,7 +121,17 @@ If you use models that are in your vendor folder, you could add this in your com
 }
 ```
 
-## Example
+## Filtering
+
+[WIP]
+
+## Joiner
+
+[WIP]
+
+## Example - Setup
+
+Let's continue with a real example, first the setup. We will use two models: `Office` and `Employee`
 
 `app/Models/Office.php`
 ```php
@@ -165,31 +173,35 @@ namespace App;
 
 use Railken\EloquentMapper\Contracts\MapContract;
 
-class ModelMap extends MapContract
+class Map extends MapContract
 {
-
     /**
      * Return an array of all models you want to map
      *
      * @return array
      */
-    public function get(): array
+    public function models(): array
     {
         return [
             \App\Models\Employee::class,
             \App\Models\Office::class
-        ]
+        ];
+    }
+
+    /**
+     * Given an instance of the model, retrieve all the attributes
+     *
+     * @return array
+     */
+    public function attributes(Model $model): array
+    {
+        return $model->attributes;
     }
 }
 
 ```
 
-The script will create a file containing all models and relations (including reverse). So even if we didn't create a relation between office and employees
-`$office->employees()->get()` will be callable.
-
-You can add the command in the scripts section of composer.json if you want
-
-## Example
+# Example - Usage
 
 Retrieve all offices that have employees with name `Mario Rossi` or `Giacomo`
 

@@ -21,11 +21,9 @@ class FilterScope
     protected $keys;
     protected $onApply;
 
-    public function __construct(Closure $retriever, string $filter, array $with = [])
+    public function __construct()
     {
-        $this->retriever = $retriever;
-        $this->filter = $filter;
-        $this->with = $this->parseWith($with);
+        $this->helper = app('eloquent.mapper');
         $this->onApply = function($query, $model) { };
     }
 
@@ -77,8 +75,12 @@ class FilterScope
      * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
      * @param \Illuminate\Database\Eloquent\Model $model
      */
-    public function apply($builder, Model $model)
+    public function apply($builder, $filter, $with = [])
     {
+        $with = $this->parseWith($with);
+
+        $model = $builder->getModel();
+
         // Use parser of filter to retrieve nodes
         $filter = new Filter($model->getTable(), ['*']);
 
@@ -95,7 +97,7 @@ class FilterScope
         foreach ($this->with as $with) {
 
 
-            $resolvedRelations = app('eloquent.mapper')->getFinder()->resolveRelation(get_class($model), $with->name);
+            $resolvedRelations = $this->helper->getFinder()->resolveRelation(get_class($model), $with->name);
 
             if ($resolvedRelations->count() !== 0) {
 
@@ -164,31 +166,22 @@ class FilterScope
         })->filter(function ($element) {
             return !empty($element);
         })->filter(function ($item) use ($model) {
-            return app('eloquent.mapper')->getFinder()->isValidNestedRelation(get_class($model), $item);
+            return $this->helper->getFinder()->isValidNestedRelation(get_class($model), $item);
         });
     }
-
-    /**
-     * Retrieve a list of attributes given $model
-     *
-     * @param Model $model
-     *
-     * @return Collection
-     */
-    public function getAttributesByModel(Model $model): Collection
-    {
-        $retriever = $this->retriever;
-
-        return collect($retriever($model));
-    }
+    
 
     public function explodeKeysWithAttributes(Model $model, Collection $relations): Collection
     {
-        $keys = $this->getAttributesByModel($model);
+        $keys = $this->helper->getAttributesByModel($model);
 
-        foreach (app('eloquent.mapper')->getFinder()->resolveRelations(get_class($model), $relations->toArray()) as $key => $relation) {
+        $relations = $this->helper->getFinder()->resolveRelations(get_class($model), $relations->toArray());
 
-            $keys = $keys->merge($this->getAttributesByModel(new $relation->model)->map(function ($attribute) use ($key) {
+        foreach ($relations as $key => $relation) {
+
+            $attrs = $this->helper->getAttributesByModel(new $relation->model);
+
+            $keys = $keys->merge($attrs->map(function ($attribute) use ($key) {
                 return $key.'.'.$attribute;
             })->values());
         }

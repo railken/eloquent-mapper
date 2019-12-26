@@ -4,84 +4,35 @@ namespace Railken\EloquentMapper;
 
 use Closure;
 use Illuminate\Support\Str;
+use Railken\EloquentMapper\Contracts\MapContract;
+use Illuminate\Database\Eloquent\Model;
+use Railken\EloquentMapper\Concerns\HasStorage;
+use Railken\EloquentMapper\Concerns\HasData;
 
 class Helper
 {
-    protected $retriever;
-    protected $finder;
+    use HasStorage;
+    use HasData;
 
-    public function __construct()
-    {
-        $this->initializeStorage();
+    protected $map;
 
-        $this->finder = new Finder($this->getRelationsByStorage());
-    }
+    public function __construct(MapContract $map)
+    {   
+        $this->map = $map;
 
-    public function getFinder(): Finder
-    {
-        return $this->finder;
+        $this->initializeStorage() && $this->boot();
+
+        $this->setData($this->getByStorage());
     }
 
     public function boot()
     {
-        $retriever = $this->retriever;
-        $models = $retriever();
-
-        $this->generate($models);
-    }
-
-    public function generate(array $models)
-    {
-        foreach ($models as $model) {
-            $this->generateModel($model);
+        foreach ($this->map->models() as $model) {
+            $this->generateModel(new $model);
         }
     }
 
-    public function retriever(Closure $closure)
-    {
-        $this->retriever = $closure;
-
-        return $this;
-    }
-
-    public function getRelations(string $model)
-    {
-        return collect(Mapper::relations($model))->map(function ($relation, $key) {
-            return array_merge($relation->toArray(), ['key' => $key]);
-        })->values();
-    }
-
-    public function initializeStorage()
-    {
-        $filePath = $this->getFilePath();
-
-        if (!file_exists(dirname($filePath))) {
-            mkdir(dirname($filePath), 0755, true);
-        }
-    }
-
-    public function removeRelationsByStorage()
-    {
-        if (file_exists($this->getFilePath())) {
-            unlink($this->getFilePath());
-        }
-    }
-
-    public function getRelationsByStorage()
-    {
-        if (!file_exists($this->getFilePath())) {
-            return [];
-        }
-
-        return include $this->getFilePath();
-    }
-
-    public function setRelationsStorage($content)
-    {
-        file_put_contents($this->getFilePath(), '<?php return '.var_export($content, true).';');
-    }
-
-    public function generateModel(string $model)
+    public function generateModel(Model $model)
     {
         $content = $this->getRelationsByStorage();
 
@@ -89,13 +40,70 @@ class Helper
             $content = [];
         }
 
-        $content[$model] = $this->getRelations($model)->toArray();
+        $attributes = $this->map->attributes($model);
 
-        $this->setRelationsStorage($content);
+        $relations = collect($this->map->relations($model))->map(function ($relation, $key) {
+            return array_merge($relation->toArray(), ['key' => $key]);
+        })->values()->toArray();
+
+        $content[$model] = [
+            'relations' => $relations,
+            'attributes' => $attributes,
+        ];
+
+        $this->setStorage($content);
     }
 
-    public function getFilePath()
+    public function getAttributesByModel(Model $model)
     {
-        return base_path('bootstrap/cache/relations.php');
+        return $this->getData($class)['attributes']
+    }
+
+    public function findRelationByKey(array $relations, string $needle)
+    {
+        foreach ($relations as $relation) {
+            if ($needle === $relation->name) {
+                return $relation;
+            }
+        }
+
+        return null;
+    }
+
+    public function resolveRelations(string $class, array $relations)
+    {
+        $resolved = Collection::make();
+
+        foreach ($relations as $relation) {
+            $resolved = $resolved->merge($this->resolveRelation($class, $relation));
+        }
+
+        return $resolved;
+    }
+
+    public function resolveRelation(string $class, string $key)
+    {
+        $resolved = Collection::make();
+
+        $keys = explode('.', $key);
+
+        foreach ($keys as $i => $key) {
+            $relation = $this->findRelationByKey($this->getData($class)['relations'], $key);
+
+            if (!$relation) {
+                return Collection::make();
+            }
+
+            $class = $relation->model;
+
+            $resolved[implode('.', array_slice($keys, 0, $i + 1))] = $relation;
+        }
+
+        return $resolved;
+    }
+
+    public function isValidNestedRelation(string $class, string $key)
+    {
+        return $this->resolveRelation($class, $key)->count() !== 0;
     }
 }

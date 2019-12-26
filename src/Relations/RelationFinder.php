@@ -1,6 +1,6 @@
 <?php
 
-namespace Railken\EloquentMapper;
+namespace Railken\EloquentMapper\Relations;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;

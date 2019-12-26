@@ -1,12 +1,10 @@
 <h1 align="left">Eloquent Mapper</h1>
 
-<h2 align="left">When relations, joins and filter become funny</h2>
-
 [![Build Status](https://travis-ci.org/railken/eloquent-mapper.svg?branch=master)](https://travis-ci.org/railken/eloquent-mapper)
 
-This library will stop you from wasting your time with boring joins and filter, how?
+This library will stop you from wasting your time with boring relations, joins and filter, how?
 
-Given for e.g. two models `Office` and `Employee` it transform a string like this `"employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"` into a sql query like this
+Given for e.g. two models `Office` and `Employee`, you can transform a string like this `"employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"` into a sql query like this
 
 ```sql
 select offices.* 
@@ -15,7 +13,7 @@ select offices.*
     where (`employees`.`name` like ? or `employees`.`name` like ?)
 ```
 
-A sets of class that will enhance eloquent for querying data.
+Functions: 
 
 - Join automatically your relations
 - Filter query with complex logic expression [lara-eye](https://github.com/railken/lara-eye)
@@ -35,9 +33,9 @@ composer require railken/eloquent-mapper
 
 ## Usage
 
-In order to use this library you need a map, a map for all the models that you wish to use, and a map of all attributes for each model.
+In order to use this library you need a map, one for all the models that you wish to use, and one for all attributes for each model.
 
-Create a new class whenever you want like the following example
+Create a new class whatever you want like the following example
 
 `app/Map.php`
 ```php
@@ -79,11 +77,11 @@ The first method is used to simply have a list of all models. You can even add m
 
 The second is used primarly for filtering, as the library need to know which fields are valid and which are not.
 
-These methods are invoked only when you call the command 'artisan mapper:generate' (see below) and the result will be cached in a file placed in `bootstrap/cache/map.php`. 
+These methods are invoked only when you call the command `artisan mapper:generate` (see below) and the result will be cached in a file placed in `bootstrap/cache/map.php`. 
 
-This means you can perform whatever logic you want to retrieve all models (e.g. scanning files etc...) so don't worry about caching.
+This means you can perform whatever logic you want to retrieve all models (e.g. scanning files), so don't worry about caching.
 
-Now it's time to register this class
+Now it's time to register this class in any provider.
 
 `app/Providers/AppServiceProvider.php`
 
@@ -110,7 +108,7 @@ class AppServiceProvider extends ServiceProvider
 
 There is only one command, and it's `artisan mapper:generate`. This command will remap and recache so keep in mind that you have to execute it whanever you change your models.
 
-If you use models that are in your vendor folder, you could add this in your composer.json to reload everytime the libreries are updated.
+If you use models that are in your vendor folder, you could add this in your `composer.json` to reload everytime the libreries are updated.
 ```json
 {
    "scripts": {
@@ -122,6 +120,8 @@ If you use models that are in your vendor folder, you could add this in your com
 ```
 
 ## Filtering
+
+Sow how the filtering actually works?
 
 [WIP]
 
@@ -140,8 +140,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Office extends Model
-{
-    public $attributes = ['name', 'description'];
+{   
+    /**
+     * An array used by the mapper to retrieve all attributes
+     *
+     * @var array
+     */
+    public $attributes = [
+        'id', 
+        'name',
+        'description',
+        'created_at',
+        'updated_at'
+    ];
 }
 ```
 
@@ -154,8 +165,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Office;
 
 class Employee extends Model
-{
-    public $attributes = ['name', 'description', 'office_id'];
+{   
+    /**
+     * An array used by the mapper to retrieve all attributes
+     *
+     * @var array
+     */
+    public $attributes = [
+        'id',
+        'name',
+        'description',
+        'office_id',
+        'created_at',
+        'updated_at'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -167,7 +190,7 @@ class Employee extends Model
 }
 ```
 
-`app/ModelMap.php`
+`app/Map.php`
 ```php
 namespace App;
 

@@ -1,20 +1,30 @@
-<h1 align="center"> Eloquent Mapper </h1>
+<h1 align="left">Eloquent Mapper</h1>
 
-<h2 align="center">:gem: Auto-generates your eloquent relations by artisan :gem:</h2>
+<h2 align="left">Stop wasting your time with boring joins and filters</h2>
 
 [![Build Status](https://travis-ci.org/railken/eloquent-mapper.svg?branch=master)](https://travis-ci.org/railken/eloquent-mapper)
 
 A sets of class that will enhance eloquent for querying data.
 
 - Generate a list of all existing relationships
-- Generate all join based on relationships defined [laravel-eloquent-join](https://github.com/fico7489/laravel-eloquent-join)
-- Generate inverse relationships
-- Filter query with complex expression [lara-eye](https://github.com/railken/lara-eye)
+- Join automatically your relations
+- Filter query with complex logic expression [lara-eye](https://github.com/railken/lara-eye)
 - Attach dynamic relationships without touching the code using [eloquent-relativity](https://github.com/imanghafoori1/eloquent-relativity)
+
+So, what actually does this library?
+
+Transform a string like this `"employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"` used on a model called for e.g. `Office` into a sql query like this
+
+```sql
+select offices.* 
+    from `offices` 
+    left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
+    where (`employees`.`name` like ? or `employees`.`name` like ?)
+```
 
 # Requirements
 
-PHP 7.1 and later.
+PHP 7.2 and later.
 
 ## Installation
 
@@ -24,12 +34,67 @@ You can install it via [Composer](https://getcomposer.org/) by typing the follow
 composer require railken/eloquent-mapper
 ```
 
+## Usage
+
+In order to use this library you need a map, a map for all the models that you wish to use, and a map of all attributes for each model.
+
+Create a new class whenever you want like the following example
+
+`app/Map.php`
+```php
+namespace App;
+
+use Railken\EloquentMapper\Contracts\MapContract;
+
+class Map extends MapContract
+{
+
+    /**
+     * Return an array of all models you want to map
+     *
+     * @return array
+     */
+    public function models(): array
+    {
+        /** return [
+            \App\Models\User::class
+        ]; **/
+    }
+
+    /**
+     * Given an instance of the model, retrieve all the attributes
+     *
+     * @return array
+     */
+    public function attributes(Model $model): array
+    {
+        /** return array_merge($model->getFillable(), [
+            'id',
+            'created_at',
+            'updated_at'
+        ]); **/
+    }
+}
+```
+
+The first method is used to simply have a list of all models. You can even add models that are in your vendor folder, regardless of the logic you use, you only have to return an array.
+
+The second is used primarly for filtering, as the library need to know which fields are valid and which are not.
+
+These methods are invoked only when you call the command 'artisan mapper:generate' (see below) and the result will be cached in a file placed in `bootstrap/cache/map.php`. 
+
+This means you can perform whatever logic you want to retrieve all models (e.g. scanning files etc...) so don't worry about caching.
+
+Now register the class in the application
+
 `app/Providers/AppServiceProvider.php`
 
 ```php
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Map;
+use Railken\EloquentMapper\Contracts\MapContract;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,11 +103,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->get('eloquent.mapper')->retriever(function () {
-            return [
-                // ... List of classes of models
-            ]
-        });
+        $this->app->bind(Map::class, MapContract::class);
+    }
+}
+```
+
+## Artisan
+
+There is only one command, and it's `artisan mapper:generate`. This command will reload and recache all relations so keep in mind that you have to execute it whanever you change your models.
+
+If you use models that are in your vendor folder, you could add this in your composer.json to reload everytime the libreries are updated.
+```json
+{
+   "scripts": {
+        "post-autoload-dump": [
+            "@php artisan mapper:generate"
+        ]
     }
 }
 ```
@@ -83,46 +159,35 @@ class Employee extends Model
 }
 ```
 
-`app/Providers/AppServiceProvider.php`
-
+`app/ModelMap.php`
 ```php
-namespace App\Providers;
+namespace App;
 
-use Illuminate\Support\ServiceProvider;
+use Railken\EloquentMapper\Contracts\MapContract;
 
-class AppServiceProvider extends ServiceProvider
+class ModelMap extends MapContract
 {
+
     /**
-     * @inherit
+     * Return an array of all models you want to map
+     *
+     * @return array
      */
-    public function register()
+    public function get(): array
     {
-        $this->app->get('eloquent.mapper')->retriever(function () {
-            return [
-                App\Models\Employee::class,
-                App\Models\Office::class
-            ]
-        });
+        return [
+            \App\Models\Employee::class,
+            \App\Models\Office::class
+        ]
     }
 }
-```
 
-Whenever you update the list of models, execute the command
-`php artisan mapper:generate`
+```
 
 The script will create a file containing all models and relations (including reverse). So even if we didn't create a relation between office and employees
 `$office->employees()->get()` will be callable.
 
 You can add the command in the scripts section of composer.json if you want
-```json
-{
-   "scripts": {
-        "post-autoload-dump": [
-            "@php artisan mapper:generate"
-        ]
-    }
-}
-```
 
 ## Example
 

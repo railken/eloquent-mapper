@@ -123,11 +123,27 @@ If you use models that are in your vendor folder, you could add this in your `co
 
 Sow how the filtering actually works?
 
-[WIP]
+
+```php
+use Railken\EloquentMapper\Scopes\FilterScope;
+use App\Models\Foo;
+
+$foo = new Foo;
+$query = $foo->newQuery();
+$queryString = "created_at >= 2019"
+
+$filter = new FilterScope($foo);
+$filter->apply($query, $queryString);
+
+```
+
+And that's it! `$query` is now filtered, if for `Foo` has any relationships you can use the dot notation and the filter will automatically perform the join. For e.g. if `Foo` has a relationship called `tags` and you want to retrieve all `Foo` with the tag name `myCustomTag` simply use `tag.name = 'myCustomTag'`.
+
+Here's the [full syntax](https://github.com/railken/search-query#nodes)
 
 ## Joiner
 
-[WIP]
+This is an internall class used by the `FilterScope` to join the necessary relations before performing the filtering, but you can use it indipendently
 
 ## Example - Setup
 
@@ -235,21 +251,16 @@ use Railken\EloquentMapper\Scopes\FilterScope;
 $office = new Office;
 
 $query = $office->newQuery();
-$myFilter = "employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"
+$queryString = "employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"
 
-$filter = new FilterScope(
-    function (Model $model) {
-        return $model->getFillable();
-    },
-    $myFilter
-);
+$filter = new FilterScope($office);
+$filter->apply($query, $queryString);
 
-$filter->apply($query, $foo);
-
-$query->toSql(); 
+echo $query->toSql(); // printing for demonstration
 
 ```
 
+Result 
 ```sql
 select offices.* 
 	from `offices` 

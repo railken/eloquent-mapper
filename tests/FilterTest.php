@@ -12,7 +12,25 @@ use Railken\EloquentMapper\Tests\Models\Tag;
 
 class BasicTest extends BaseTest
 {
-    public function testValidFilteringBelongsTo()
+    public function testValidFilteringBelongsToBasic()
+    {
+        $book = new Book();
+        $qb = $book->newQuery();
+        $scope = new FilterScope;
+        $scope->apply($qb, 'author.name ct "hello"');
+
+        $this->assertQuery('
+            SELECT *
+            FROM `books`
+            LEFT JOIN `authors` AS `author`
+                ON `books`.`author_id` = `author`.`id`
+                    AND `author`.`deleted_at` is null
+            WHERE `author`.`name` LIKE ?
+                AND `books`.`deleted_at` is null
+        ', $qb->toSql());
+    }
+
+    public function testValidFilteringBelongsToWith()
     {
     	$book = new Book();
     	$qb = $book->newQuery();
@@ -32,6 +50,8 @@ class BasicTest extends BaseTest
             	AND `books`.`deleted_at` is null
         ', $qb->toSql());
 
+
+
         $qbTag = (new Tag)->newQuery();
         $closure = $qb->getEagerLoads()['tags'];    
         $closure($qbTag);
@@ -42,6 +62,5 @@ class BasicTest extends BaseTest
             WHERE `tags`.`name` LIKE ? 
                 AND `tags`.`deleted_at` is null
         ', $qbTag->toSql());
-
     }
 }

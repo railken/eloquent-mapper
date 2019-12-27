@@ -54,6 +54,10 @@ class Map implements MapContract
      */
     public function attributes(Model $model): array
     {
-        return $model->getCasts();
+        return array_merge(
+            array_keys($model->getCasts()),
+            $model->getFillable(),
+            $model->getDates()
+        );
     }
 }

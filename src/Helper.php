@@ -42,7 +42,7 @@ class Helper
             $content = [];
         }
 
-        $attributes = array_keys($this->map->attributes($model));
+        $attributes = $this->map->attributes($model);
 
         $relations = collect($this->map->relations($model))->map(function ($relation, $key) {
             return array_merge($relation->toArray(), ['key' => $key]);

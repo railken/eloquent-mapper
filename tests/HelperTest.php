@@ -10,9 +10,21 @@ use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class HelperTest extends BaseTest
 {
-    public function testValidationRelationsList()
+    public function testAttributeList()
     {
+        $map = $this->app->make(MapContract::class);
 
+        $this->assertEquals([
+            'id',
+            'name',
+            'deleted_at',
+            'created_at',
+            'updated_at'
+        ], $map->attributes(new Book));
+    }
+
+    public function testRelationsList()
+    {
         $map = $this->app->make(MapContract::class);
 
         $this->assertEquals([

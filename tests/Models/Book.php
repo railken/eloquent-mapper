@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations;
 class Book extends Model
 {
     use SoftDeletes;
+    
+    protected $fillable = ['name'];
 
     public function author(): Relations\BelongsTo
     {

@@ -23,8 +23,8 @@ class BasicTest extends BaseTest
             LEFT JOIN `authors` AS `author`
                 ON `books`.`author_id` = `author`.`id`
                     AND `author`.`deleted_at` is null
-            WHERE `books`.`deleted_at` is null
-            	AND `author`.`name` LIKE ?
+            WHERE `author`.`name` LIKE ?
+            	AND `books`.`deleted_at` is null
         ', $qb->toSql());
     }
 }

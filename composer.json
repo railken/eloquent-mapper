@@ -10,7 +10,8 @@
         "railken/cacheable": "0.1.*",
         "imanghafoori/eloquent-relativity": "^1.0",
         "ankurk91/laravel-eloquent-relationships": "^1.1",
-        "railken/lara-eye": "^1.3"
+        "railken/lara-eye": "^1.3",
+        "ramsey/collection": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~7.0",

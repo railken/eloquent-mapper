@@ -21,8 +21,15 @@ class Helper
     {   
         $this->map = $map;
 
-        $this->initializeStorage() && $this->boot();
+        if ($this->initializeStorage()) {
+            $this->boot();
+        } else {
+            $this->setDataByStorage();
+        }
+    }
 
+    public function setDataByStorage()
+    {
         $this->setData($this->getByStorage());
     }
 
@@ -31,6 +38,8 @@ class Helper
         foreach ($this->map->models() as $model) {
             $this->generateModel(new $model);
         }
+
+        $this->setDataByStorage();
     }
 
     public function generateModel(Model $model)

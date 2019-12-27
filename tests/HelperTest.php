@@ -5,11 +5,22 @@ namespace Railken\EloquentMapper\Tests;
 use Railken\EloquentMapper\Joiner\Joiner;
 use Railken\EloquentMapper\Mapper;
 use Railken\EloquentMapper\Tests\Models\Book;
+use Railken\EloquentMapper\Tests\Models\Tag;
 use Railken\EloquentMapper\Scopes\FilterScope;
 use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class HelperTest extends BaseTest
 {
+    public function testEventReloadRelationships()
+    {
+        $map = $this->app->make(MapContract::class);
+        $this->assertFalse(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'bookshelf'));
+        Book::belongs_to('bookshelf', Tag::class);
+        event(new \Railken\EloquentMapper\Events\EloquentMapUpdate(Book::class));
+        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'bookshelf'));
+        Book::removeRelation('bookshelf');
+    }
+
     public function testAttributeList()
     {
         $map = $this->app->make(MapContract::class);

@@ -14,6 +14,7 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
         parent::setUp();
 
         $this->artisan('cache:clear');
+        $this->artisan('mapper:generate');
 
         $this->formatter = new Formatter();
     }

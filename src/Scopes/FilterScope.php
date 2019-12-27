@@ -12,6 +12,7 @@ use Railken\SQ\Languages\BoomTree\Nodes\Node;
 use Closure;
 use Railken\Bag;
 use Illuminate\Support\Collection;
+use Railken\EloquentMapper\Collections\With\WithCollection;
 
 class FilterScope
 {
@@ -24,32 +25,6 @@ class FilterScope
     {
         $this->helper = app('eloquent.mapper');
         $this->onApply = function($query, $model) { };
-    }
-
-    public function parseWith($with)
-    {
-        return array_map(function ($element) {
-
-            if (is_array($element)) {
-                $element = (object) $element;
-            }
-
-            if (is_object($element)) {
-                return new Bag([
-                    'name' => $element->name,
-                    'query' => $element->query
-                ]);
-            }
-
-            if (is_string($element)) {
-                return new Bag([
-                    'name' => $element,
-                    'query' => ''
-                ]);
-            }
-
-            return new Bag();
-        }, $with);
     }
 
     public function getOnApply(): Closure
@@ -73,11 +48,10 @@ class FilterScope
      *
      * @param \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation $builder
      * @param string $query
-     * @param array $with
+     * @param WithCollection $with
      */
-    public function apply($builder, string $query, array $with = [])
+    public function apply($builder, string $query, WithCollection $with = null)
     {
-        $with = $this->parseWith($with);
 
         $model = $builder->getModel();
 
@@ -94,25 +68,26 @@ class FilterScope
         // Create a correct collection of keys based on relations and exploded attributes
         $keys = $this->explodeKeysWithAttributes($model, $relations);
 
-        // Attach with
-        foreach ($with as $withOne) {
 
+        if ($with) {
+            foreach ($with as $withOne) {
 
-            $resolvedRelations = $this->helper->resolveRelation(get_class($model), $withOne->name);
+                $resolvedRelations = $this->helper->resolveRelation(get_class($model), $withOne->getName());
 
-            if ($resolvedRelations->count() !== 0) {
+                if ($resolvedRelations->count() !== 0) {
 
-                $resolvedRelation = $resolvedRelations[$withOne->name];
+                    $resolvedRelation = $resolvedRelations[$withOne->getName()];
 
-                $builder->with([$withOne->name => function ($query) use ($resolvedRelation) {
+                    $builder->with([$withOne->getName() => function ($query) use ($resolvedRelation) {
 
-                    $withModel = new $resolvedRelation->model;
-                    $innerScope = new self();
-                    $innerScope->setOnApply($this->getOnApply());
-                    $query->select($withModel->getTable().".*");
-                    $innerScope->onApply($query, $withModel);
-                    $innerScope->apply($query, $withModel);
-                }]);
+                        $withModel = new $resolvedRelation->model;
+                        $innerScope = new self();
+                        $innerScope->setOnApply($this->getOnApply());
+                        $query->select($withModel->getTable().".*");
+                        $innerScope->onApply($query, $withModel);
+                        $innerScope->apply($query, $withOne->getQuery());
+                    }]);
+                }
             }
         }
 

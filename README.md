@@ -33,7 +33,7 @@ composer require railken/eloquent-mapper
 
 ## Usage
 
-In order to use this library you need a map, one for all the models that you wish to use, and one for all attributes for each model.
+In order to use this library you need a map, for all the models that you wish to use.
 
 Create a new class whatever you want like the following example
 
@@ -41,9 +41,9 @@ Create a new class whatever you want like the following example
 ```php
 namespace App;
 
-use Railken\EloquentMapper\Contracts\MapContract;
+use Railken\EloquentMapper\Map as BaseMap;
 
-class Map extends MapContract
+class Map extends BaseMap
 {
     /**
      * Return an array of all models you want to map
@@ -56,26 +56,12 @@ class Map extends MapContract
             \App\Models\User::class
         ]; **/
     }
-
-    /**
-     * Given an instance of the model, retrieve all the attributes
-     *
-     * @return array
-     */
-    public function attributes(Model $model): array
-    {
-        /** return array_merge($model->getFillable(), [
-            'id',
-            'created_at',
-            'updated_at'
-        ]); **/
-    }
 }
 ```
 
 The first method is used to simply have a list of all models. You can even add models that are in your vendor folder, regardless of the logic you use, you only have to return an array.
 
-The second is used primarly for filtering, as the library need to know which fields are valid and which are not.
+`Railken\EloquentMapper\Map` also has the mapping of relations and attributes based on the model, if you wish you can ovveride that functionality and write your own. [Check source](.src/Map.php)
 
 These methods are invoked only when you call the command `artisan mapper:generate` (see below) and the result will be cached in a file placed in `bootstrap/cache/map.php`. 
 

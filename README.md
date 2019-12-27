@@ -33,9 +33,9 @@ composer require railken/eloquent-mapper
 
 ## Usage
 
-In order to use this library you need a map, for all the models that you wish to use.
+In order to use this library you need a map.
 
-Create a new class whatever you want like the following example
+Create a new class wherever you want like the following example
 
 `app/Map.php`
 ```php
@@ -59,15 +59,15 @@ class Map extends BaseMap
 }
 ```
 
-The first method is used to simply have a list of all models. You can even add models that are in your vendor folder, regardless of the logic you use, you only have to return an array.
+The method `models` must return a list of all models. You can even add models that are in your vendor folder, regardless of the logic you use, you only have to return an array.
 
-`Railken\EloquentMapper\Map` also has the mapping of relations and attributes based on the model, if you wish you can ovveride that functionality and write your own. [Check source](.src/Map.php)
+`Railken\EloquentMapper\Map` also has the mapping of relations and attributes based on the model, if you wish you can ovveride that functionality and write your own. [Check source](src/Map.php)
 
 These methods are invoked only when you call the command `artisan mapper:generate` (see below) and the result will be cached in a file placed in `bootstrap/cache/map.php`. 
 
 This means you can perform whatever logic you want to retrieve all models (e.g. scanning files), so don't worry about caching.
 
-Now it's time to register this class in any provider.
+Now it's time to register this class in any provider to override the default one.
 
 `app/Providers/AppServiceProvider.php`
 
@@ -92,7 +92,7 @@ class AppServiceProvider extends ServiceProvider
 
 ## Artisan
 
-There is only one command, and it's `artisan mapper:generate`. This command will remap and recache so keep in mind that you have to execute it whanever you change your models.
+There is only one command, and it's `artisan mapper:generate`. This command will remap and recache so keep in mind that you have to execute it whanever you change your code models .
 
 If you use models that are in your vendor folder, you could add this in your `composer.json` to reload everytime the libreries are updated.
 ```json
@@ -116,16 +116,37 @@ use App\Models\Foo;
 
 $foo = new Foo;
 $query = $foo->newQuery();
-$queryString = "created_at >= 2019"
+$filter = "created_at >= 2019";
+$with = ['author'];
 
-$filter = new FilterScope($foo);
-$filter->apply($query, $queryString);
+$scope = new FilterScope;
+$scope->apply($query, $filter, $with);
 
 ```
 
-And that's it! `$query` is now filtered, if for `Foo` has any relationships you can use the dot notation and the filter will automatically perform the join. For e.g. if `Foo` has a relationship called `tags` and you want to retrieve all `Foo` with the tag name `myCustomTag` simply use `tag.name = 'myCustomTag'`.
+And that's it! `$query` is now filtered, if `Foo` has any relationships you can use the dot notation and the filter will automatically perform the join. For e.g. if `Foo` has a relationship called `tags` and you want to retrieve all `Foo` with the tag name `myCustomTag` simply use `tag.name = 'myCustomTag'`.
 
 Here's the [full syntax](https://github.com/railken/search-query#nodes)
+
+The third parameter is the eager loading option. You can of course use the dot notation as well and add subquery.
+For istance the following example rapresent a list of all authors that contains the name `Mario` and returns all of theirs books that have a `tag.name` called `sci-fi`.
+
+```php
+use Railken\EloquentMapper\Tests\Models\Author;
+
+$author = new Author;
+$query = $author->newQuery();
+$filter = "name ct 'Mario'";
+$with = [
+    [
+        'name' => 'books',
+        'query' => 'tag.name eq `sci-fi`'
+    ]
+];
+
+$scope = new FilterScope;
+$scope->apply($query, $filter, $with);
+```
 
 ## Joiner
 

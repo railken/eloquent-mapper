@@ -6,6 +6,9 @@ use Railken\EloquentMapper\Joiner\Joiner;
 use Railken\EloquentMapper\Mapper;
 use Railken\EloquentMapper\Tests\Models\Book;
 use Railken\EloquentMapper\Scopes\FilterScope;
+use Railken\EloquentMapper\Collections\With\WithCollection;
+use Railken\EloquentMapper\Collections\With\WithItem;
+use Railken\EloquentMapper\Tests\Models\Tag;
 
 class BasicTest extends BaseTest
 {
@@ -15,7 +18,9 @@ class BasicTest extends BaseTest
     	$qb = $book->newQuery();
 
     	$scope = new FilterScope;
-    	$scope->apply($qb, 'author.name ct "hello"');
+    	$scope->apply($qb, 'author.name ct "hello"', new WithCollection([
+            new WithItem('tags', 'name ct "tagName"')
+        ]));
 
         $this->assertQuery('
             SELECT *
@@ -26,5 +31,17 @@ class BasicTest extends BaseTest
             WHERE `author`.`name` LIKE ?
             	AND `books`.`deleted_at` is null
         ', $qb->toSql());
+
+        $qbTag = (new Tag)->newQuery();
+        $closure = $qb->getEagerLoads()['tags'];    
+        $closure($qbTag);
+
+        $this->assertQuery('
+            SELECT `tags`.* 
+            FROM `tags` 
+            WHERE `tags`.`name` LIKE ? 
+                AND `tags`.`deleted_at` is null
+        ', $qbTag->toSql());
+
     }
 }

@@ -78,9 +78,9 @@ class FilterScope
 
                     $resolvedRelation = $resolvedRelations[$withOne->getName()];
 
-                    $builder->with([$withOne->getName() => function ($query) use ($resolvedRelation) {
+                    $builder->with([$withOne->getName() => function ($query) use ($withOne, $resolvedRelation) {
 
-                        $withModel = new $resolvedRelation->model;
+                        $withModel = new $resolvedRelation['model'];
                         $innerScope = new self();
                         $innerScope->setOnApply($this->getOnApply());
                         $query->select($withModel->getTable().".*");

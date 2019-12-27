@@ -120,7 +120,9 @@ $filter = "created_at >= 2019";
 $with = ['author'];
 
 $scope = new FilterScope;
-$scope->apply($query, $filter, $with);
+$scope->apply($query, $filter, new WithCollection([
+    new WithItem('books')
+]));
 
 ```
 
@@ -132,20 +134,19 @@ The third parameter is the eager loading option. You can of course use the dot n
 For istance the following example rapresent a list of all authors that contains the name `Mario` and returns all of theirs books that have a `tag.name` called `sci-fi`.
 
 ```php
+use Railken\EloquentMapper\Scopes\FilterScope;
+use Railken\EloquentMapper\Collections\With\WithCollection;
+use Railken\EloquentMapper\Collections\With\WithItem;
 use Railken\EloquentMapper\Tests\Models\Author;
 
 $author = new Author;
 $query = $author->newQuery();
 $filter = "name ct 'Mario'";
-$with = [
-    [
-        'name' => 'books',
-        'query' => 'tag.name eq `sci-fi`'
-    ]
-];
-
 $scope = new FilterScope;
-$scope->apply($query, $filter, $with);
+
+$scope->apply($query, $filter, new WithCollection([
+    new WithItem('books', 'tag.name eq `sci-fi`')
+]));
 ```
 
 ## Joiner

@@ -12,6 +12,11 @@ use Railken\EloquentMapper\Joiner\Resolvers;
 class Joiner implements JoinerContract
 {
     /**
+     * @var Collection
+     */
+    protected $resolvers;
+
+    /**
      * Construct
      */
     public function __construct()

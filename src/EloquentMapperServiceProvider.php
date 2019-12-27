@@ -5,7 +5,6 @@ namespace Railken\EloquentMapper;
 use Illuminate\Support\ServiceProvider;
 use Railken\EloquentMapper\Console\Commands\Mapper;
 use Illuminate\Support\Facades\Event;
-use 
 
 class EloquentMapperServiceProvider extends ServiceProvider
 {

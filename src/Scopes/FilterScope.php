@@ -15,11 +15,10 @@ use Illuminate\Support\Collection;
 
 class FilterScope
 {
-    protected $retriever;
-    protected $filter;
     protected $with;
     protected $keys;
     protected $onApply;
+    protected $helper;
 
     public function __construct()
     {
@@ -72,10 +71,11 @@ class FilterScope
     /**
      * Apply the scope to a given Eloquent query builder.
      *
-     * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
-     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation $builder
+     * @param string $query
+     * @param array $with
      */
-    public function apply($builder, $filter, $with = [])
+    public function apply($builder, string $query, array $with = [])
     {
         $with = $this->parseWith($with);
 
@@ -85,28 +85,29 @@ class FilterScope
         $filter = new Filter($model->getTable(), ['*']);
 
         // Retrieve relations used by the query
-        $keys = $this->extractFilterKeys($filter->getParser()->parse($this->filter));
+        $keys = $this->extractFilterKeys($filter->getParser()->parse($query));
 
         // Extract all relations from keys
         $relations = $this->filterKeysByRelations($builder, $model, $keys);
+
             
         // Create a correct collection of keys based on relations and exploded attributes
         $keys = $this->explodeKeysWithAttributes($model, $relations);
 
         // Attach with
-        foreach ($this->with as $with) {
+        foreach ($with as $withOne) {
 
 
-            $resolvedRelations = $this->helper->getFinder()->resolveRelation(get_class($model), $with->name);
+            $resolvedRelations = $this->helper->resolveRelation(get_class($model), $withOne->name);
 
             if ($resolvedRelations->count() !== 0) {
 
-                $resolvedRelation = $resolvedRelations[$with->name];
+                $resolvedRelation = $resolvedRelations[$withOne->name];
 
-                $builder->with([$with->name => function ($query) use ($with, $resolvedRelation) {
+                $builder->with([$withOne->name => function ($query) use ($resolvedRelation) {
 
                     $withModel = new $resolvedRelation->model;
-                    $innerScope = new self($this->retriever, $with->query);
+                    $innerScope = new self();
                     $innerScope->setOnApply($this->getOnApply());
                     $query->select($withModel->getTable().".*");
                     $innerScope->onApply($query, $withModel);
@@ -123,7 +124,7 @@ class FilterScope
 
         // Use $keys to create a more correct filter
         $filter = new Filter($model->getTable(), $keys->toArray());
-        $filter->build($builder, $this->filter);
+        $filter->build($builder, $query);
 
         $this->keys = $keys->values()->toArray();
     }
@@ -139,7 +140,7 @@ class FilterScope
     {
         $relations = collect();
 
-        if ($node instanceof \Railken\SQ\Languages\BoomTree\Nodes\KeyNode) {
+        if ($node instanceof KeyNode) {
             $relations[] = $node->getValue();
         }
 
@@ -153,7 +154,7 @@ class FilterScope
     /**
      * Filter all keys by checking if is a relation with the $model
      *
-     * @param \Illuminate\Database\Eloquent\Builder|Illuminate\Database\Eloquent\Relations\Relation $builder
+     * @param \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation $builder
      * @param Model $model
      * @param Collection $collection
      *
@@ -166,7 +167,7 @@ class FilterScope
         })->filter(function ($element) {
             return !empty($element);
         })->filter(function ($item) use ($model) {
-            return $this->helper->getFinder()->isValidNestedRelation(get_class($model), $item);
+            return $this->helper->isValidNestedRelation(get_class($model), $item);
         });
     }
     
@@ -175,11 +176,11 @@ class FilterScope
     {
         $keys = $this->helper->getAttributesByModel($model);
 
-        $relations = $this->helper->getFinder()->resolveRelations(get_class($model), $relations->toArray());
+        $relations = $this->helper->resolveRelations(get_class($model), $relations->toArray());
 
         foreach ($relations as $key => $relation) {
 
-            $attrs = $this->helper->getAttributesByModel(new $relation->model);
+            $attrs = $this->helper->getAttributesByModel(new $relation['model']);
 
             $keys = $keys->merge($attrs->map(function ($attribute) use ($key) {
                 return $key.'.'.$attribute;

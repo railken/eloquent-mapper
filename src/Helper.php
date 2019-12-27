@@ -4,10 +4,11 @@ namespace Railken\EloquentMapper;
 
 use Closure;
 use Illuminate\Support\Str;
-use Railken\EloquentMapper\Contracts\MapContract;
+use Railken\EloquentMapper\Contracts\Map as MapContract;
 use Illuminate\Database\Eloquent\Model;
 use Railken\EloquentMapper\Concerns\HasStorage;
 use Railken\EloquentMapper\Concerns\HasData;
+use Illuminate\Support\Collection;
 
 class Helper
 {
@@ -34,19 +35,20 @@ class Helper
 
     public function generateModel(Model $model)
     {
-        $content = $this->getRelationsByStorage();
+        $content = $this->getByStorage();
+
 
         if (!is_array($content) || count($content) === 0) {
             $content = [];
         }
 
-        $attributes = $this->map->attributes($model);
+        $attributes = array_keys($this->map->attributes($model));
 
         $relations = collect($this->map->relations($model))->map(function ($relation, $key) {
             return array_merge($relation->toArray(), ['key' => $key]);
         })->values()->toArray();
 
-        $content[$model] = [
+        $content[get_class($model)] = [
             'relations' => $relations,
             'attributes' => $attributes,
         ];
@@ -56,13 +58,13 @@ class Helper
 
     public function getAttributesByModel(Model $model)
     {
-        return $this->getData($class)['attributes']
+        return collect($this->getDataByKey(get_class($model).'.attributes'));
     }
 
     public function findRelationByKey(array $relations, string $needle)
     {
         foreach ($relations as $relation) {
-            if ($needle === $relation->name) {
+            if ($needle === $relation['name']) {
                 return $relation;
             }
         }
@@ -88,13 +90,14 @@ class Helper
         $keys = explode('.', $key);
 
         foreach ($keys as $i => $key) {
-            $relation = $this->findRelationByKey($this->getData($class)['relations'], $key);
+
+            $relation = $this->findRelationByKey($this->getDataByKey($class . '.relations'), $key);
 
             if (!$relation) {
                 return Collection::make();
             }
 
-            $class = $relation->model;
+            $class = $relation['model'];
 
             $resolved[implode('.', array_slice($keys, 0, $i + 1))] = $relation;
         }

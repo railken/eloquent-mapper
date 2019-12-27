@@ -179,4 +179,10 @@ abstract class Base
             'targetTable' => $this->getTargetTable()
         ];
     }
+
+
+    public function solveColumnWhere($alias, $tableName, $column)
+    {
+        return $this->parseAliasableKey($this->getTargetTable(), $column);
+    }
 }

@@ -2,8 +2,9 @@
 
 namespace Railken\EloquentMapper;
 
-use Railken\EloquentMapper\Contracts\MapContract
+use Railken\EloquentMapper\Contracts\Map as MapContract;
 use Railken\EloquentMapper\Relations\RelationFinder;
+use Illuminate\Database\Eloquent\Model;
 
 class Map implements MapContract
 {

@@ -9,7 +9,8 @@
         "railken/laravel-eloquent-join": "0.1.*",
         "railken/cacheable": "0.1.*",
         "imanghafoori/eloquent-relativity": "^1.0",
-        "ankurk91/laravel-eloquent-relationships": "^1.1"
+        "ankurk91/laravel-eloquent-relationships": "^1.1",
+        "railken/lara-eye": "^1.3"
     },
     "require-dev": {
         "phpunit/phpunit": "~7.0",

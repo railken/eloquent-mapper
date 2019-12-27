@@ -6,6 +6,7 @@ use Railken\EloquentMapper\Joiner\Joiner;
 use Railken\EloquentMapper\Mapper;
 use Railken\EloquentMapper\Tests\Models\Book;
 use Railken\EloquentMapper\Tests\Models\Author;
+use Railken\EloquentMapper\Contracts\Joiner as JoinerContract;
 
 class JoinerTest extends BaseTest
 {
@@ -13,7 +14,7 @@ class JoinerTest extends BaseTest
     {
         $qb = (new Book())->newQuery();
 
-        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'author');
+        app(JoinerContract::class)->leftJoin($qb, 'author');
 
         $this->assertQuery('
             SELECT *
@@ -29,8 +30,8 @@ class JoinerTest extends BaseTest
     {
         $qb = (new Book())->newQuery();
         
-        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'author');
-        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'author');
+        app(JoinerContract::class)->leftJoin($qb, 'author');
+        app(JoinerContract::class)->leftJoin($qb, 'author');
 
         $this->assertQuery('
             SELECT *
@@ -46,7 +47,7 @@ class JoinerTest extends BaseTest
     {
         $qb = (new Author())->newQuery();
 
-        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'books');
+        app(JoinerContract::class)->leftJoin($qb, 'books');
 
         $this->assertQuery('
             SELECT *
@@ -62,7 +63,7 @@ class JoinerTest extends BaseTest
     {
         $qb = (new Book())->newQuery();
 
-        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'categories');
+        app(JoinerContract::class)->leftJoin($qb, 'categories');
 
         $this->assertQuery('
             SELECT *
@@ -78,7 +79,7 @@ class JoinerTest extends BaseTest
     {
         $qb = (new Book())->newQuery();
 
-        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'author.books');
+        app(JoinerContract::class)->leftJoin($qb, 'author.books');
 
         $this->assertQuery('
             SELECT *
@@ -98,7 +99,7 @@ class JoinerTest extends BaseTest
     {
         $qb = (new Book())->newQuery();
 
-        app(\Railken\EloquentMapper\Contracts\Joiner::class)->leftJoin($qb, 'tags');
+        app(JoinerContract::class)->leftJoin($qb, 'tags');
 
         $this->assertQuery('
             SELECT *

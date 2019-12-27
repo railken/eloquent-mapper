@@ -11,19 +11,19 @@ interface Map
      *
      * @return array
      */
-    public function models(): array
+    public function models(): array;
     
     /**
      * Given an instance of the model, retrieve all the relations
      *
      * @return array
      */
-    public function relations(Model $model): array
+    public function relations(Model $model): array;
 
     /**
      * Given an instance of the model, retrieve all the attributes
      *
      * @return array
      */
-    public function attributes(Model $model): array
+    public function attributes(Model $model): array;
 }

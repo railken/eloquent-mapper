@@ -2,6 +2,8 @@
 
 namespace Railken\EloquentMapper\Concerns;
 
+use Railken\Bag;
+
 trait HasData
 {
     protected $data;
@@ -29,7 +31,7 @@ trait HasData
 
     public function getDataByKey(string $key)
     {
-        return isset($this->data[$key]) ? $this->data[$key] : [];
+        return (array) (new Bag($this->data))->get($key, []);
     }
 
 }

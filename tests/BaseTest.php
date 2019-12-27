@@ -30,6 +30,7 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
     {
         return [
             \Railken\EloquentMapper\EloquentMapperServiceProvider::class,
+            \Railken\EloquentMapper\Tests\AppServiceProvider::class,
         ];
     }
 }

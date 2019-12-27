@@ -14,6 +14,7 @@ use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
+use Railken\EloquentMapper\Illuminate\Database\Query\Expression;
 
 class RelationFinder
 {
@@ -29,10 +30,12 @@ class RelationFinder
     public function getModelRelations(string $model)
     {
         $class = new ReflectionClass($model);
+
         $traitMethods = Collection::make($class->getTraits())->map(function (ReflectionClass $trait) {
             return Collection::make($trait->getMethods(ReflectionMethod::IS_PUBLIC));
         })->flatten();
         $macroMethods = $this->getMacroMethods($model);
+
 
         $methods = Collection::make($class->getMethods(ReflectionMethod::IS_PUBLIC))
             ->merge($traitMethods)
@@ -49,10 +52,14 @@ class RelationFinder
         $methods = $methods->keys();
 
         // Detect imanghafoori1/eloquent-relativity
-        $property = $class->getProperty('dynamicRelations');
-        $property->setAccessible(true);
-        $methods = $methods->merge(Collection::make($property->getValue('dynamicRelations'))->keys());
+        if ($class->hasProperty('dynamicRelations')) {
+            $property = $class->getProperty('dynamicRelations');
+            $property->setAccessible(true);
 
+            $methods = $methods->merge(Collection::make($property->getValue('dynamicRelations'))->keys());
+
+        }
+        
         $methods->map(function (string $functionName) use ($model, &$relations) {
             try {
                 $return = app($model)->$functionName();
@@ -201,7 +208,7 @@ class RelationFinder
                 }
 
                 if ($clause['column'] instanceof \Illuminate\Database\Query\Expression) {
-                    $clause['column'] = new \Railken\EloquentMapper\Expression($clause['column']->getValue());
+                    $clause['column'] = new Expression($clause['column']->getValue());
                 }
 
                 $return[] = $clause;

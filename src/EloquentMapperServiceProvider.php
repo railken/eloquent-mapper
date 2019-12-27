@@ -22,8 +22,12 @@ class EloquentMapperServiceProvider extends ServiceProvider
     {
         $this->commands([Mapper::class]);
 
+        // A model has been updated, regenerate the map.
         Event::listen(Events\EloquentMapUpdate::class, function () {
-            $this->app->get('eloquent.mapper')->boot();
+            $this->app->get('eloquent.mapper')->regenerate();
         });
+
+        // Boot the mapper.
+        $this->app->get('eloquent.mapper')->boot();
     }
 }

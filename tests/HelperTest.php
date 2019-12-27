@@ -13,7 +13,6 @@ class HelperTest extends BaseTest
 {
     public function testEventReloadRelationships()
     {
-        $map = $this->app->make(MapContract::class);
         $this->assertFalse(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'bookshelf'));
         Book::belongs_to('bookshelf', Tag::class);
         event(new \Railken\EloquentMapper\Events\EloquentMapUpdate(Book::class));

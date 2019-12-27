@@ -85,15 +85,7 @@ class RelationFinder
             return $relation->$getKeyMethod();
         }
 
-        // relatedKey is protected before 5.7 in BelongsToMany
-
-        $reflection = new \ReflectionClass($relation);
-
-        $property = $reflection->getProperty($keyName);
-
-        $property->setAccessible(true);
-
-        return $property->getValue($relation);
+        throw new \Exception("Cannot find key named %s in %s", $keyName, get_class($relation));
     }
 
     /**

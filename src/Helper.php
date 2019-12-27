@@ -20,12 +20,6 @@ class Helper
     public function __construct(MapContract $map)
     {   
         $this->map = $map;
-
-        if ($this->initializeStorage()) {
-            $this->boot();
-        } else {
-            $this->setDataByStorage();
-        }
     }
 
     public function setDataByStorage()
@@ -34,6 +28,16 @@ class Helper
     }
 
     public function boot()
+    {
+        if ($this->initializeStorage()) {
+            $this->boot();
+        } else {
+            $this->setDataByStorage();
+        }
+
+    }
+
+    public function regenerate()
     {
         foreach ($this->map->models() as $model) {
             $this->generateModel(new $model);

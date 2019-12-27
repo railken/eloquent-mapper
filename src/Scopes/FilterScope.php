@@ -85,7 +85,10 @@ class FilterScope
                         $innerScope->setOnApply($this->getOnApply());
                         $query->select($withModel->getTable().".*");
                         $innerScope->onApply($query, $withModel);
-                        $innerScope->apply($query, $withOne->getQuery());
+
+                        if ($withOne->getQuery()) {
+                            $innerScope->apply($query, $withOne->getQuery());
+                        }
                     }]);
                 }
             }

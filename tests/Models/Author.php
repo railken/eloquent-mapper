@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Relations;
 
 class Author extends Model
 {
-	use SoftDeletes;
+    use SoftDeletes;
 
     protected $fillable = ['name'];
-	
+    
     public function books(): Relations\HasMany
     {
         return $this->hasMany(Book::class);

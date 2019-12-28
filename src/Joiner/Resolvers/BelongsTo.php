@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Builder;
 
 class BelongsTo extends Base
 {
-	public function resolve(Builder $builder)
-	{
-		if (!$this->isAlreadyJoined($builder, $this->getJoinQuery())) {
-			$this->join($builder, 'foreignKey', 'ownerKey', 1);
-    	}
-	}
+    public function resolve(Builder $builder)
+    {
+        if (!$this->isAlreadyJoined($builder, $this->getJoinQuery())) {
+            $this->join($builder, 'foreignKey', 'ownerKey', 1);
+        }
+    }
 
-	public function solveColumnWhere($alias, $tableName, $column)
-	{
-		return $this->parseAliasableKey($this->getTargetTable(), $column);
-	}
+    public function solveColumnWhere($alias, $tableName, $column)
+    {
+        return $this->parseAliasableKey($this->getTargetTable(), $column);
+    }
 }

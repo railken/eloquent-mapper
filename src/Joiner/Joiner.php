@@ -70,7 +70,6 @@ class Joiner implements JoinerContract
         $currentModel = $model;
 
         foreach ($relations as $i => $relation) {
-
             $relatedRelation   = $currentModel->$relation();
             $relatedModel      = $relatedRelation->getRelated();
             $relatedTable      = $relatedModel->getTable();
@@ -80,9 +79,7 @@ class Joiner implements JoinerContract
 
             // @TODO, check if same joinQuery is already in $builder
             foreach ($this->getResolvers()->toArray() as $key => $resolverClass) {
-
                 if ($relatedRelation instanceof $key) {
-
                     $resolver = new $resolverClass;
 
                     $resolver

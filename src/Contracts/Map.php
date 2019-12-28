@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 interface Map
 {
-	/**
+    /**
      * Return an array of all models you want to map
      *
      * @return array

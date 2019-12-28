@@ -7,11 +7,11 @@ use Railken\EloquentMapper\Contracts;
 
 class AppServiceProvider extends ServiceProvider
 {
-	/**
-	 * @inherit
-	 */
-	public function register()
-	{
+    /**
+     * @inherit
+     */
+    public function register()
+    {
         $this->app->bind(Contracts\Map::class, Map::class);
-	}
+    }
 }

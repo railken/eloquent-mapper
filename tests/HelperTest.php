@@ -46,7 +46,7 @@ class HelperTest extends BaseTest
 
     public function testValidationRelation()
     {
-    	$this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'author'));
+        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'author'));
         $this->assertFalse(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'bookshelf'));
         $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'author.books.author.books.author'));
     }

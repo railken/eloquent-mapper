@@ -18,7 +18,7 @@ class Helper
     protected $map;
 
     public function __construct(MapContract $map)
-    {   
+    {
         $this->map = $map;
     }
 
@@ -102,7 +102,6 @@ class Helper
         $keys = explode('.', $key);
 
         foreach ($keys as $i => $key) {
-
             $relation = $this->findRelationByKey($this->getDataByKey($class . '.relations'), $key);
 
             if (!$relation) {

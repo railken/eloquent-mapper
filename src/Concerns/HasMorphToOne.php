@@ -17,9 +17,9 @@ trait HasMorphToOne
     public static function morph_to_one($relationName)
     {
         return new AbstractRelation([
-            'morphToOne', 
-            static::class, 
-            $relationName, 
+            'morphToOne',
+            static::class,
+            $relationName,
             array_slice(func_get_args(), 1)
         ]);
     }

@@ -1,6 +1,7 @@
 <?php
 
 namespace Railken\EloquentMapper\Joiner\Resolvers;
+
 use Illuminate\Database\Eloquent\Builder;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations; // tmp
 use Illuminate\Support\Facades\DB;
 
 abstract class Base
-{   
+{
     protected $relation;
     protected $relationName;
     protected $joinQuery;
@@ -16,8 +17,8 @@ abstract class Base
     protected $sourceTable;
     protected $targetTale;
 
-	public function setRelation(Relation $relation): Base
-    {   
+    public function setRelation(Relation $relation): Base
+    {
         $this->relation = $relation;
 
         return $this;
@@ -29,7 +30,7 @@ abstract class Base
     }
 
     public function setRelationName(string $relationName): Base
-    {   
+    {
         $this->relationName = $relationName;
 
         return $this;
@@ -150,7 +151,6 @@ abstract class Base
         $method = $this->getMethod();
         
         $builder->$method($this->getJoinQuery(), function ($join) use ($targetKey, $sourceKey, $min) {
-
             $relation = $this->getRelation();
 
             $targetKey = $this->getKeyFromRelation($relation, $targetKey);
@@ -158,7 +158,7 @@ abstract class Base
 
             $join->on(
                 $this->parseAliasableKey($this->getSourceTable(), $sourceKey),
-                '=', 
+                '=',
                 $this->parseAliasableKey($this->getTargetTable(), $targetKey)
             );
 

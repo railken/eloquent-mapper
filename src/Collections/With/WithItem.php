@@ -6,41 +6,41 @@ use Ramsey\Collection\AbstractCollection;
 
 class WithItem
 {
-	/**
-	 * @var string
-	 */
-	protected $name;
+    /**
+     * @var string
+     */
+    protected $name;
 
-	/**
-	 * @var string
-	 */
-	protected $query;
+    /**
+     * @var string
+     */
+    protected $query;
 
-	/**
-	 * Construct
-	 *
-	 * @param string $name
-	 * @param string $query
-	 */
-	public function __construct(string $name, string $query)
-	{
-		$this->name = $name;
-		$this->query = $query;
-	}
+    /**
+     * Construct
+     *
+     * @param string $name
+     * @param string $query
+     */
+    public function __construct(string $name, string $query)
+    {
+        $this->name = $name;
+        $this->query = $query;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getName(): string
-	{
-		return $this->name;
-	}
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getQuery(): string
-	{
-		return $this->query;
-	}
+    /**
+     * @return string
+     */
+    public function getQuery(): string
+    {
+        return $this->query;
+    }
 }

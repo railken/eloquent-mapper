@@ -8,18 +8,18 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class EloquentMapUpdate implements ShouldBroadcast
 {
-	/**
-	 * @var string
-	 */
-	public $model;
+    /**
+     * @var string
+     */
+    public $model;
 
-	/**
-	 * @param string $model
-	 */
-	public function __construct(string $model)
-	{
-		$this->model = $model;
-	}
+    /**
+     * @param string $model
+     */
+    public function __construct(string $model)
+    {
+        $this->model = $model;
+    }
 
     public function broadcastAs()
     {

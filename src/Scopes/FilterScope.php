@@ -24,7 +24,8 @@ class FilterScope
     public function __construct()
     {
         $this->helper = app('eloquent.mapper');
-        $this->onApply = function($query, $model) { };
+        $this->onApply = function ($query, $model) {
+        };
     }
 
     public function getOnApply(): Closure
@@ -52,7 +53,6 @@ class FilterScope
      */
     public function apply($builder, string $query, WithCollection $with = null)
     {
-
         $model = $builder->getModel();
 
         // Use parser of filter to retrieve nodes
@@ -71,15 +71,12 @@ class FilterScope
 
         if ($with) {
             foreach ($with as $withOne) {
-
                 $resolvedRelations = $this->helper->resolveRelation(get_class($model), $withOne->getName());
 
                 if ($resolvedRelations->count() !== 0) {
-
                     $resolvedRelation = $resolvedRelations[$withOne->getName()];
 
                     $builder->with([$withOne->getName() => function ($query) use ($withOne, $resolvedRelation) {
-
                         $withModel = new $resolvedRelation['model'];
                         $innerScope = new self();
                         $innerScope->setOnApply($this->getOnApply());
@@ -157,7 +154,6 @@ class FilterScope
         $relations = $this->helper->resolveRelations(get_class($model), $relations->toArray());
 
         foreach ($relations as $key => $relation) {
-
             $attrs = $this->helper->getAttributesByModel(new $relation['model']);
 
             $keys = $keys->merge($attrs->map(function ($attribute) use ($key) {

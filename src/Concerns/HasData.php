@@ -33,5 +33,4 @@ trait HasData
     {
         return (array) (new Bag($this->data))->get($key, []);
     }
-
 }

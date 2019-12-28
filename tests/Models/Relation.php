@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Relation extends MorphPivot
 {
-/**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
+    /**
+         * Indicates if the IDs are auto-incrementing.
+         *
+         * @var bool
+         */
     public $incrementing = true;
 
     /**

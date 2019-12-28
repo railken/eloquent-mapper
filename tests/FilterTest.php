@@ -32,11 +32,11 @@ class FilterTest extends BaseTest
 
     public function testValidFilteringBelongsToWith()
     {
-    	$book = new Book();
-    	$qb = $book->newQuery();
+        $book = new Book();
+        $qb = $book->newQuery();
 
-    	$scope = new FilterScope;
-    	$scope->apply($qb, 'author.name ct "hello"', new WithCollection([
+        $scope = new FilterScope;
+        $scope->apply($qb, 'author.name ct "hello"', new WithCollection([
             new WithItem('tags', 'name ct "tagName"')
         ]));
 
@@ -53,7 +53,7 @@ class FilterTest extends BaseTest
 
 
         $qbTag = (new Tag)->newQuery();
-        $closure = $qb->getEagerLoads()['tags'];    
+        $closure = $qb->getEagerLoads()['tags'];
         $closure($qbTag);
 
         $this->assertQuery('

@@ -7,7 +7,7 @@ use Imanghafoori\Relativity\AbstractRelation;
 
 trait HasBelongsToOne
 {
-	use BelongsToOne;
+    use BelongsToOne;
 
     /**
      * Define a polymorphic belongs-to-one relationship.
@@ -17,9 +17,9 @@ trait HasBelongsToOne
     public static function belongs_to_one($relationName)
     {
         return new AbstractRelation([
-            'belongsToOne', 
-            static::class, 
-            $relationName, 
+            'belongsToOne',
+            static::class,
+            $relationName,
             array_slice(func_get_args(), 1)
         ]);
     }

@@ -44,7 +44,6 @@ class RelationFinder
             })
             ->merge($macroMethods)
             ->reject(function (ReflectionFunctionAbstract $functionAbstract) {
-
                 $type = $functionAbstract->getReturnType();
 
                 return $functionAbstract->getNumberOfParameters() > 0 || !$type || !is_subclass_of($type->getName(), Relation::class);

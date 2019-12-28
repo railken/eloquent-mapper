@@ -76,7 +76,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Map;
-use Railken\EloquentMapper\Contracts\MapContract;
+use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -85,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(Map::class, MapContract::class);
+        $this->app->bind(MapContract::class, Map::class);
     }
 }
 ```
@@ -161,6 +161,7 @@ Let's continue with a real example, first the setup. We will use two models: `Of
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Office extends Model
 {   
@@ -171,6 +172,14 @@ class Office extends Model
         'name',
         'description'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class);
+    }
 }
 ```
 

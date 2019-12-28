@@ -19,7 +19,7 @@ Functions:
 - Filter query with complex logic expression [lara-eye](https://github.com/railken/lara-eye)
 - Attach dynamic relationships without touching the code using [eloquent-relativity](https://github.com/imanghafoori1/eloquent-relativity)
 
-# Requirements
+## Requirements
 
 PHP 7.2 and later.
 
@@ -117,11 +117,10 @@ use App\Models\Foo;
 $foo = new Foo;
 $query = $foo->newQuery();
 $filter = "created_at >= 2019";
-$with = ['author'];
 
 $scope = new FilterScope;
 $scope->apply($query, $filter, new WithCollection([
-    new WithItem('books')
+    new WithItem('bar')
 ]));
 
 ```

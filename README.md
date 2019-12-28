@@ -8,9 +8,9 @@ Given for e.g. two models `Office` and `Employee`, you can transform a string li
 
 ```sql
 select offices.* 
-    from `offices` 
-    left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
-    where (`employees`.`name` like ? or `employees`.`name` like ?)
+from `offices` 
+left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
+where (`employees`.`name` like ? or `employees`.`name` like ?)
 ```
 
 Functions: 
@@ -207,7 +207,9 @@ class Employee extends Model
 ```php
 namespace App;
 
-use Railken\EloquentMapper\Map as BaseMap;
+use Railken\EloquentMapperfrom `offices` 
+left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
+where (`employees`.`name` like ? or `employees`.`name` like ?)\Map as BaseMap;
 
 class Map extends BaseMap
 {
@@ -250,7 +252,7 @@ echo $query->toSql();
 Result:
 ```sql
 select offices.* 
-	from `offices` 
-	left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
-	where (`employees`.`name` like ? or `employees`.`name` like ?)
+from `offices` 
+left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
+where (`employees`.`name` like ? or `employees`.`name` like ?)
 ```

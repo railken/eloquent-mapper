@@ -2,7 +2,7 @@
 
 [![Actions Status](https://github.com/railken/eloquent-mapper/workflows/Test/badge.svg)](https://github.com/railken/eloquent-mapper/actions)
 
-This library will stop you from wasting your time with boring relations, joins and filter, how?
+This library will stop you from wasting your time with boring relations, joins and filters, how?
 
 Given for e.g. two models `Office` and `Employee`, you can transform a string like this `"employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"` into a sql query like this
 
@@ -164,17 +164,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Office extends Model
 {   
-    /**
-     * An array used by the mapper to retrieve all attributes
-     *
+    /** 
      * @var array
      */
-    public $attributes = [
-        'id', 
+    public $fillable = [
         'name',
-        'description',
-        'created_at',
-        'updated_at'
+        'description'
     ];
 }
 ```
@@ -190,17 +185,12 @@ use App\Models\Office;
 class Employee extends Model
 {   
     /**
-     * An array used by the mapper to retrieve all attributes
-     *
      * @var array
      */
     public $attributes = [
-        'id',
         'name',
         'description',
-        'office_id',
-        'created_at',
-        'updated_at'
+        'office_id'
     ];
 
     /**
@@ -217,9 +207,9 @@ class Employee extends Model
 ```php
 namespace App;
 
-use Railken\EloquentMapper\Contracts\MapContract;
+use Railken\EloquentMapper\Map as BaseMap;
 
-class Map extends MapContract
+class Map extends BaseMap
 {
     /**
      * Return an array of all models you want to map
@@ -232,16 +222,6 @@ class Map extends MapContract
             \App\Models\Employee::class,
             \App\Models\Office::class
         ];
-    }
-
-    /**
-     * Given an instance of the model, retrieve all the attributes
-     *
-     * @return array
-     */
-    public function attributes(Model $model): array
-    {
-        return $model->attributes;
     }
 }
 
@@ -258,16 +238,16 @@ use Railken\EloquentMapper\Scopes\FilterScope;
 $office = new Office;
 
 $query = $office->newQuery();
-$queryString = "employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"
+$filter = "employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"
 
-$filter = new FilterScope($office);
-$filter->apply($query, $queryString);
+$scope = new FilterScope();
+$scope->apply($query, $filter);
 
-echo $query->toSql(); // printing for demonstration
+echo $query->toSql();
 
 ```
 
-Result 
+Result:
 ```sql
 select offices.* 
 	from `offices` 

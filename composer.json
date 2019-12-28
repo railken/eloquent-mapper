@@ -12,8 +12,8 @@
         "ramsey/collection": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~8.0",
-        "orchestra/testbench": "4.*",
+        "phpunit/phpunit": "*",
+        "orchestra/testbench": "*",
         "nilportugues/sql-query-formatter": "^1.2",
         "friendsofphp/php-cs-fixer": "^2.16"
     },
@@ -33,5 +33,7 @@
                 "Railken\\EloquentMapper\\EloquentMapperServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

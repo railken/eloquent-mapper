@@ -27,6 +27,6 @@ jobs:
             composer require --dev phpstan/phpstan
       - name: Test Quality
         run: |
-            export PATH="$HOME/.composer/vendor/bin:$PATH"
-            ./vendor/bin/phpstan analyse --level=0 src -c phpstan.neon
-            ./vendor/bin/phpstan analyse --level=0 tests -c phpstan.neon
+          export PATH="$HOME/.composer/vendor/bin:$PATH"
+          ./vendor/bin/phpstan analyse --level=0 src -c phpstan.neon
+          ./vendor/bin/phpstan analyse --level=0 tests -c phpstan.neon

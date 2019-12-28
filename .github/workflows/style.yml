@@ -15,8 +15,8 @@ jobs:
         
       - name: Install Composer dependencies
         run: |
-           composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
-           composer require --dev friendsofphp/php-cs-fixer
+          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+          composer require --dev friendsofphp/php-cs-fixer
 
       - name: Run fix:style
         run: |

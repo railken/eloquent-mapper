@@ -1,6 +1,6 @@
 <h1 align="left">Eloquent Mapper</h1>
 
-[![Build Status](https://travis-ci.org/railken/eloquent-mapper.svg?branch=master)](https://travis-ci.org/railken/eloquent-mapper)
+[![Actions Status](https://github.com/railken/eloquent-mapper/workflows/test/badge.svg)](https://github.com/railken/eloquent-mapper/actions)
 
 This library will stop you from wasting your time with boring relations, joins and filter, how?
 

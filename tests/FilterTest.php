@@ -6,8 +6,8 @@ use Railken\EloquentMapper\Joiner\Joiner;
 use Railken\EloquentMapper\Mapper;
 use Railken\EloquentMapper\Tests\Models\Book;
 use Railken\EloquentMapper\Scopes\FilterScope;
-use Railken\EloquentMapper\Collections\With\WithCollection;
-use Railken\EloquentMapper\Collections\With\WithItem;
+use Railken\EloquentMapper\With\WithCollection;
+use Railken\EloquentMapper\With\WithItem;
 use Railken\EloquentMapper\Tests\Models\Tag;
 
 class FilterTest extends BaseTest

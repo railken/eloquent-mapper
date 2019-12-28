@@ -12,7 +12,7 @@ use Railken\SQ\Languages\BoomTree\Nodes\Node;
 use Closure;
 use Railken\Bag;
 use Illuminate\Support\Collection;
-use Railken\EloquentMapper\Collections\With\WithCollection;
+use Railken\EloquentMapper\With\WithCollection;
 
 class FilterScope
 {

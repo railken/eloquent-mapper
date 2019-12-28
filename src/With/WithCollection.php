@@ -1,6 +1,6 @@
 <?php
 
-namespace Railken\EloquentMapper\Collections\With;
+namespace Railken\EloquentMapper\With;
 
 use Ramsey\Collection\AbstractCollection;
 

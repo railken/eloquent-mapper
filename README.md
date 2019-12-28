@@ -74,7 +74,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Employee extends Model
+class Foo extends Model
 {   
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

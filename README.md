@@ -21,7 +21,7 @@ Functions:
 
 ## Requirements
 
-PHP 7.2 and later.
+PHP 7.2 and laravel 5.8
 
 ## Installation
 

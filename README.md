@@ -67,6 +67,25 @@ These methods are invoked only when you call the command `artisan mapper:generat
 
 This means you can perform whatever logic you want to retrieve all models (e.g. scanning files), so don't worry about caching.
 
+**Important**: In order to be detectred, all relations must return the type `Illuminate\Database\Eloquent\Relations\Relation` like this:
+
+```php
+namespace App;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Employee extends Model
+{   
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function bar(): BelongsTo
+    {
+        return $this->belongsTo(Bar::class);
+    }
+}
+```
+
 Now it's time to register this class in any provider to override the default one.
 
 `app/Providers/AppServiceProvider.php`
@@ -144,13 +163,13 @@ $filter = "name ct 'Mario'";
 $scope = new FilterScope;
 
 $scope->apply($query, $filter, new WithCollection([
-    new WithItem('books', 'tag.name eq `sci-fi`')
+    new WithItem('books', 'tag.name eq "sci-fi"')
 ]));
 ```
 
 ## Joiner
 
-This is an internall class used by the `FilterScope` to join the necessary relations before performing the filtering, but you can use it indipendently
+This is an internal class used by the `FilterScope` to join the necessary relations before performing the filtering, but you can use it indipendently. [see tests](tests/JoinerTest.php)
 
 ## Example - Setup
 

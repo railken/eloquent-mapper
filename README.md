@@ -187,7 +187,7 @@ class Employee extends Model
     /**
      * @var array
      */
-    public $attributes = [
+    public $fillable = [
         'name',
         'description',
         'office_id'
@@ -207,9 +207,7 @@ class Employee extends Model
 ```php
 namespace App;
 
-use Railken\EloquentMapperfrom `offices` 
-left join `employees` as `employees` on `employees`.`office_id` = `offices`.`id`
-where (`employees`.`name` like ? or `employees`.`name` like ?)\Map as BaseMap;
+use Railken\EloquentMapper\Map as BaseMap;
 
 class Map extends BaseMap
 {

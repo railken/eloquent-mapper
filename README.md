@@ -67,7 +67,7 @@ These methods are invoked only when you call the command `artisan mapper:generat
 
 This means you can perform whatever logic you want to retrieve all models (e.g. scanning files), so don't worry about caching.
 
-**Important**: In order to be detectred, all relations must return the type `Illuminate\Database\Eloquent\Relations\Relation` like this:
+**Important**: In order to be detected, all relations must return the type `Illuminate\Database\Eloquent\Relations\Relation` like this:
 
 ```php
 namespace App;

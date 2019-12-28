@@ -2,7 +2,7 @@
 
 [![Actions Status](https://github.com/railken/eloquent-mapper/workflows/Test/badge.svg)](https://github.com/railken/eloquent-mapper/actions)
 
-This library will stop you from wasting your time with boring relations, joins and filters, how?
+A laravel package that use the full power of relations to create joins automatically and perform advanced filtering.
 
 Given for e.g. two models `Office` and `Employee`, you can transform a string like this `"employees.name ct 'Mario Rossi' or employees.name ct 'Giacomo'"` into a sql query like this
 

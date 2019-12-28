@@ -30,11 +30,10 @@ class Helper
     public function boot()
     {
         if ($this->initializeStorage()) {
-            $this->boot();
+            $this->regenerate();
         } else {
             $this->setDataByStorage();
         }
-
     }
 
     public function regenerate()

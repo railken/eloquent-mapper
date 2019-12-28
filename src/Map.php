@@ -6,14 +6,17 @@ use Railken\EloquentMapper\Contracts\Map as MapContract;
 use Railken\EloquentMapper\Relations\RelationFinder;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class Map implements MapContract
+class Map implements MapContract
 {
     /**
      * Return an array of all models you want to map
      *
      * @return array
      */
-    abstract public function models(): array;
+    public function models(): array
+    {
+        return [];
+    }
     
     /**
      * Given an instance of the model, retrieve all the relations

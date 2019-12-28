@@ -34,10 +34,10 @@ abstract class Map implements MapContract
      */
     public function attributes(Model $model): array
     {
-        return array_merge(
+        return array_unique(array_merge(
             array_keys($model->getCasts()),
             $model->getFillable(),
             $model->getDates()
-        );
+        ));
     }
 }

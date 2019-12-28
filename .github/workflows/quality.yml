@@ -28,5 +28,5 @@ jobs:
       - name: Test Quality
         run: |
           export PATH="$HOME/.composer/vendor/bin:$PATH"
-          ./vendor/bin/phpstan analyse --level=0 src -c phpstan.neon
-          ./vendor/bin/phpstan analyse --level=0 tests -c phpstan.neon
+          ./vendor/bin/phpstan analyse --level=0 src
+          ./vendor/bin/phpstan analyse --level=0 tests

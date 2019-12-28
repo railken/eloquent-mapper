@@ -134,8 +134,8 @@ For istance the following example rapresent a list of all authors that contains 
 
 ```php
 use Railken\EloquentMapper\Scopes\FilterScope;
-use Railken\EloquentMapper\Collections\With\WithCollection;
-use Railken\EloquentMapper\Collections\With\WithItem;
+use Railken\EloquentMapper\With\WithCollection;
+use Railken\EloquentMapper\With\WithItem;
 use Railken\EloquentMapper\Tests\Models\Author;
 
 $author = new Author;

@@ -6,6 +6,8 @@ use NilPortugues\Sql\QueryFormatter\Formatter;
 
 abstract class BaseTest extends \Orchestra\Testbench\TestCase
 {
+    protected $formatter;
+
     /**
      * Setup the test environment.
      */
@@ -21,7 +23,7 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
 
     public function assertQuery($x, $y)
     {
-        return $this->assertEquals(
+        $this->assertEquals(
             $this->formatter->format(strtolower(trim(preg_replace('!\s+!', ' ', $x)))),
             $this->formatter->format(strtolower(trim(preg_replace('!\s+!', ' ', $y))))
         );

@@ -10,7 +10,7 @@ use Railken\EloquentMapper\Collections\With\WithCollection;
 use Railken\EloquentMapper\Collections\With\WithItem;
 use Railken\EloquentMapper\Tests\Models\Tag;
 
-class BasicTest extends BaseTest
+class FilterTest extends BaseTest
 {
     public function testValidFilteringBelongsToBasic()
     {

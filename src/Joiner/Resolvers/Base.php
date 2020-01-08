@@ -95,28 +95,54 @@ abstract class Base
         return false;
     }
 
+    public function applyWhereFromArray($join, $alias, array $wheres)
+    {
+        foreach ($wheres as $clause) {
+
+            $method = 'Basic' === $clause['type'] ? 'where' : 'where'.$clause['type'];
+
+
+            if ($clause['type'] === 'Nested') {
+                $prefix = $clause['boolean'] ?? 'and';
+                $method = $clause['boolean'] === 'and' ? 'where' : $clause['boolean'].'Where';
+
+                $join->$method(function ($query) use ($alias, $clause) {
+                    return $this->applyWhereFromArray($query, $alias, $clause['query']->wheres);
+                });
+            }
+            
+            if (isset($clause['column'])) {
+
+                // Remove first alias table name
+                $partsColumn = explode('.', $clause['column']);
+
+                if (count($partsColumn) > 1) {
+                    $column = implode('.', array_slice($partsColumn, 1));
+                    $clause['column'] = $this->solveColumnWhere($alias, $partsColumn[0], $column);
+
+                    unset($clause['type']);
+                    
+                    $join->$method(...array_values($clause));
+                } else {
+                    throw new \Exceptions(sprintf("All columns should have a table alias refering, %s", implode(".", $partsColumn)));
+                }
+
+            }
+
+        }
+
+    }
+
     public function applyWhere($join, $relation, $alias, int $min = 0, int $max = null)
     {
         $relationBuilder = $relation->getQuery();
         $relationBuilder = $relationBuilder->applyScopes();
+
+        $wheres = $relationBuilder->getQuery()->wheres;
+
         $wheres = array_slice($relationBuilder->getQuery()->wheres, $min, $max);
 
-        foreach ($wheres as $clause) {
-            $method = 'Basic' === $clause['type'] ? 'where' : 'where'.$clause['type'];
-
-            unset($clause['type']);
-
-            // Remove first alias table name
-            $partsColumn = explode('.', $clause['column']);
-
-            if (count($partsColumn) > 1) {
-                $column = implode('.', array_slice($partsColumn, 1));
-                $clause['column'] = $this->solveColumnWhere($alias, $partsColumn[0], $column);
-            }
-
-
-            $join->$method(...array_values($clause));
-        }
+        $this->applyWhereFromArray($join, $alias, $wheres);
     }
 
     public function getKeyFromRelation(Relation $relation, string $keyName)

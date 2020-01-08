@@ -40,7 +40,10 @@ class HelperTest extends BaseTest
         $this->assertEquals([
             'author',
             'tags',
-            'categories'
+            'categories',
+            'reviews',
+            'worstReviews',
+            'bestReviews',
         ], array_keys($map->relations(new Book)));
     }
 

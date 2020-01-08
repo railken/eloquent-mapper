@@ -115,4 +115,21 @@ class JoinerTest extends BaseTest
             WHERE `books`.`deleted_at` is null
         ', $qb->toSql());
     }
+
+    public function testBelongsToMany()
+    {
+        $qb = (new Book())->newQuery();
+
+        app(JoinerContract::class)->leftJoin($qb, 'reviews');
+
+        $this->assertQuery('
+            select * from `books` 
+            left join `book_reviews` as `reviews_pivot` 
+                on `books`.`id` = `reviews_pivot`.`book_id` 
+            left join `reviews` as `reviews` 
+                on `reviews_pivot`.`review_id` = `reviews`.`id` 
+                and `reviews`.`deleted_at` is null 
+            where `books`.`deleted_at` is null
+        ', $qb->toSql());
+    }
 }

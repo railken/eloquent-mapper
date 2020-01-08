@@ -11,6 +11,7 @@ class Map extends BaseMap
     {
         return [
             Models\Author::class,
+            Models\Review::class,
             Models\Book::class,
             Models\Category::class,
             Models\Relation::class,

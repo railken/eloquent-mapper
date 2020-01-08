@@ -37,4 +37,27 @@ class Book extends Model
     {
         return $this->morphMany(Category::class, 'categorizable');
     }
+
+    public function reviews(): Relations\BelongsToMany
+    {
+        return $this->belongsToMany(
+            Review::class,
+            'book_reviews'
+        );
+    }
+
+    public function worstReviews(): Relations\BelongsToMany
+    {
+        return $this->reviews()->where('reviews.rating', '<=', 2)->orWhere('reviews.content', 'like', '%bad%');
+    }
+
+    public function bestReviews(): Relations\BelongsToMany
+    {
+        return $this->reviews()->where(function ($q) {
+            return $q
+                ->orWhere('reviews.rating', '>=', 5)
+                ->orWhere('reviews.content', 'like', '%good%')
+            ;
+        });
+    }
 }

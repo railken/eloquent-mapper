@@ -123,7 +123,7 @@ abstract class Base
                     
                     $join->$method(...array_values($clause));
                 } else {
-                    throw new \Exceptions(sprintf("All columns should have a table alias refering, %s", implode(".", $partsColumn)));
+                    throw new \Exception(sprintf("All columns should have a table alias refering, %s", implode(".", $partsColumn)));
                 }
             }
         }

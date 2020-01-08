@@ -98,7 +98,6 @@ abstract class Base
     public function applyWhereFromArray($join, $alias, array $wheres)
     {
         foreach ($wheres as $clause) {
-
             $method = 'Basic' === $clause['type'] ? 'where' : 'where'.$clause['type'];
 
 
@@ -126,11 +125,8 @@ abstract class Base
                 } else {
                     throw new \Exceptions(sprintf("All columns should have a table alias refering, %s", implode(".", $partsColumn)));
                 }
-
             }
-
         }
-
     }
 
     public function applyWhere($join, $relation, $alias, int $min = 0, int $max = null)

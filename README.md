@@ -131,6 +131,8 @@ Sow how the filtering actually works?
 
 ```php
 use Railken\EloquentMapper\Scopes\FilterScope;
+use Railken\EloquentMapper\With\WithCollection;
+use Railken\EloquentMapper\With\WithItem;
 use App\Models\Foo;
 
 $foo = new Foo;

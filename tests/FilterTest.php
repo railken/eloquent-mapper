@@ -50,8 +50,6 @@ class FilterTest extends BaseTest
             	AND `books`.`deleted_at` is null
         ', $qb->toSql());
 
-
-
         $qbTag = (new Tag)->newQuery();
         $closure = $qb->getEagerLoads()['tags'];
         $closure($qbTag);

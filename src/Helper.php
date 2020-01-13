@@ -49,7 +49,6 @@ class Helper
     {
         $content = $this->getByStorage();
 
-
         if (!is_array($content) || count($content) === 0) {
             $content = [];
         }

@@ -132,4 +132,21 @@ class JoinerTest extends BaseTest
             where `books`.`deleted_at` is null
         ', $qb->toSql());
     }
+
+    public function testBelongsToManyWithOrWhere()
+    {
+        $qb = (new Book())->newQuery();
+
+        app(JoinerContract::class)->leftJoin($qb, 'worstReviews');
+
+        $this->assertQuery('
+            select * from `books` 
+            left join `book_reviews` as `worstreviews_pivot` 
+                on `books`.`id` = `worstreviews_pivot`.`book_id` 
+            left join `reviews` as `worstreviews` 
+                on `worstreviews_pivot`.`review_id` = `worstreviews`.`id` 
+                and `worstreviews`.`deleted_at` is null 
+            where `books`.`deleted_at` is null
+        ', $qb->toSql());
+    }
 }

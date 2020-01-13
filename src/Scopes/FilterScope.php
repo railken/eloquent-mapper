@@ -68,7 +68,6 @@ class FilterScope
         $keys = $this->explodeKeysWithAttributes($model, $relations);
 
         if (!empty($query)) {
-
             $joiner = app(\Railken\EloquentMapper\Contracts\Joiner::class);
 
             foreach ($relations as $relation) {
@@ -78,7 +77,6 @@ class FilterScope
             // Use $keys to create a more correct filter
             $filter = new Filter($model->getTable(), $keys->toArray());
             $filter->build($builder, $query);
-
         }
 
         if ($with) {

@@ -10,7 +10,7 @@ class HasOneOrMany extends Base
     public function resolve(Builder $builder)
     {
         if (!$this->isAlreadyJoined($builder, $this->getJoinQuery())) {
-            $this->join($builder, 'parentKey', 'foreignKey', 2);
+            $this->join($builder, 'parentKey', 'foreignKey');
         }
     }
 

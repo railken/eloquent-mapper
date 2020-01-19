@@ -129,14 +129,12 @@ abstract class Base
         }
     }
 
-    public function applyWhere($join, $relation, $alias, int $min = 0, int $max = null)
+    public function applyWhere($join, $relation, $alias)
     {
         $relationBuilder = $relation->getQuery();
         $relationBuilder = $relationBuilder->applyScopes();
 
         $wheres = $relationBuilder->getQuery()->wheres;
-
-        $wheres = array_slice($relationBuilder->getQuery()->wheres, $min, $max);
 
         $this->applyWhereFromArray($join, $alias, $wheres);
     }
@@ -168,11 +166,11 @@ abstract class Base
         return DB::raw('`'.$alias.'`.`'.$key.'`');
     }
 
-    public function join(Builder $builder, string $sourceKey, string $targetKey, int $min)
+    public function join(Builder $builder, string $sourceKey, string $targetKey)
     {
         $method = $this->getMethod();
         
-        $builder->$method($this->getJoinQuery(), function ($join) use ($targetKey, $sourceKey, $min) {
+        $builder->$method($this->getJoinQuery(), function ($join) use ($targetKey, $sourceKey) {
             $relation = $this->getRelation();
 
             $targetKey = $this->getKeyFromRelation($relation, $targetKey);
@@ -184,7 +182,7 @@ abstract class Base
                 $this->parseAliasableKey($this->getTargetTable(), $targetKey)
             );
 
-            $this->applyWhere($join, $relation, null, $min);
+            $this->applyWhere($join, $relation, null);
         });
     }
     

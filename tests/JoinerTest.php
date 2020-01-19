@@ -101,6 +101,7 @@ class JoinerTest extends BaseTest
 
         app(JoinerContract::class)->leftJoin($qb, 'tags');
 
+
         $this->assertQuery('
             SELECT *
             FROM `books`
@@ -145,6 +146,10 @@ class JoinerTest extends BaseTest
                 on `books`.`id` = `worstreviews_pivot`.`book_id` 
             left join `reviews` as `worstreviews` 
                 on `worstreviews_pivot`.`review_id` = `worstreviews`.`id` 
+                and (
+                    `worstreviews`.`rating` <= ?
+                    or `worstreviews`.`content` like ?
+                )
                 and `worstreviews`.`deleted_at` is null 
             where `books`.`deleted_at` is null
         ', $qb->toSql());

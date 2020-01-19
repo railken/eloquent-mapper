@@ -23,16 +23,13 @@ class Joiner implements JoinerContract
     {
         $this->resolvers = new Collection();
         $this->resolvers = $this->resolvers->merge([
-            Relations\BelongsTo::class => Resolvers\BelongsTo::class,
-
-            Relations\MorphToMany::class => Resolvers\MorphToMany::class,
-
-            Relations\BelongsToMany::class => Resolvers\BelongsToMany::class,
-            
-            Relations\HasOneOrMany::class => Resolvers\HasOneOrMany::class,
-            Relations\MorphMany::class => Resolvers\HasOneOrMany::class,
-            Relations\MorphOne::class => Resolvers\HasOneOrMany::class,
-            Relations\MorphOneOrMany::class => Resolvers\HasOneOrMany::class,
+            Relations\BelongsTo::class      => Resolvers\BelongsTo::class,
+            Relations\MorphToMany::class    => Resolvers\MorphToMany::class,
+            Relations\BelongsToMany::class  => Resolvers\BelongsToMany::class,
+            Relations\MorphOneOrMany::class => Resolvers\MorphOneOrMany::class,
+            Relations\HasOneOrMany::class   => Resolvers\HasOneOrMany::class,
+            Relations\MorphMany::class      => Resolvers\HasOneOrMany::class,
+            Relations\MorphOne::class       => Resolvers\HasOneOrMany::class,
         ]);
     }
 
@@ -71,33 +68,35 @@ class Joiner implements JoinerContract
 
         foreach ($relations as $i => $relation) {
             $relatedRelation   = $currentModel->$relation();
-            $relatedModel      = $relatedRelation->getRelated();
-            $relatedTable      = $relatedModel->getTable();
-            $relationName      = $this->parseAlias(array_slice($relations, 0, $i + 1));
+            $relatedRelation::noConstraints(function () use ($relation, &$currentModel, &$currentTableAlias, $relations, $i, $method, $builder) {
+                $relatedRelation   = $currentModel->$relation();
+                $relatedModel      = $relatedRelation->getRelated();
+                $relationName      = $this->parseAlias(array_slice($relations, 0, $i + 1));
 
-            $joinQuery = $relatedModel->getTable().($relatedModel->getTable() !== $relationName ? ' as '.$relationName : '');
+                $joinQuery = $relatedModel->getTable().($relatedModel->getTable() !== $relationName ? ' as '.$relationName : '');
 
-            // @TODO, check if same joinQuery is already in $builder
-            foreach ($this->getResolvers()->toArray() as $key => $resolverClass) {
-                if ($relatedRelation instanceof $key) {
-                    $resolver = new $resolverClass;
+                // @TODO, check if same joinQuery is already in $builder
+                foreach ($this->getResolvers()->toArray() as $key => $resolverClass) {
+                    if ($relatedRelation instanceof $key) {
+                        $resolver = new $resolverClass;
 
-                    $resolver
-                        ->setRelationName($relationName)
-                        ->setMethod($method)
-                        ->setRelation($relatedRelation)
-                        ->setSourceTable($currentTableAlias)
-                        ->setTargetTable($relationName)
-                    ;
+                        $resolver
+                            ->setRelationName($relationName)
+                            ->setMethod($method)
+                            ->setRelation($relatedRelation)
+                            ->setSourceTable($currentTableAlias)
+                            ->setTargetTable($relationName)
+                        ;
 
-                    $resolver->resolve($builder);
+                        $resolver->resolve($builder);
 
-                    break; //uhm..........
+                        break; //uhm..........
+                    }
                 }
-            }
 
-            $currentModel      = $relatedModel;
-            $currentTableAlias = $relationName;
+                $currentModel      = $relatedModel;
+                $currentTableAlias = $relationName;
+            });
         }
     }
 

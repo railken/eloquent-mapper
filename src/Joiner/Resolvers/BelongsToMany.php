@@ -44,7 +44,7 @@ class BelongsToMany extends Base
                     $this->parseAliasableKey($this->getTargetTable(), $targetKey)
                 );
 
-                $this->applyWhere($join, $relation, $pivotTableAlias, 1);
+                $this->applyWhere($join, $relation, $pivotTableAlias);
             });
         }
     }

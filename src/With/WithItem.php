@@ -22,7 +22,7 @@ class WithItem
      * @param string $name
      * @param string $query
      */
-    public function __construct(string $name, string $query = null)
+    public function __construct(string $name, string $query = '')
     {
         $this->name = $name;
         $this->query = $query;

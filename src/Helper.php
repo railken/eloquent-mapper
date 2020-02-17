@@ -39,7 +39,7 @@ class Helper
     public function regenerate()
     {
         foreach ($this->map->models() as $model) {
-            $this->generateModel(new $model);
+            $this->generateModel($model instanceof Model ? $model : new $model);
         }
 
         $this->setDataByStorage();

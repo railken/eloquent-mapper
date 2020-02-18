@@ -15,7 +15,7 @@ class Helper
     use HasStorage;
     use HasData;
 
-    protected $map;
+    public $map;
 
     public function __construct(MapContract $map)
     {
@@ -83,31 +83,32 @@ class Helper
         return null;
     }
 
-    public function resolveRelations(string $class, array $relations)
+    public function resolveRelations(Model $model, array $relations)
     {
         $resolved = Collection::make();
 
         foreach ($relations as $relation) {
-            $resolved = $resolved->merge($this->resolveRelation($class, $relation));
+            $resolved = $resolved->merge($this->resolveRelation($model, $relation));
         }
 
         return $resolved;
     }
 
-    public function resolveRelation(string $class, string $key)
+    public function resolveRelation(Model $model, string $key)
     {
         $resolved = Collection::make();
 
         $keys = explode('.', $key);
 
         foreach ($keys as $i => $key) {
-            $relation = $this->findRelationByKey($this->getDataByKey($class . '.relations'), $key);
+
+            $relation = $this->findRelationByKey($this->getDataByKey($this->map->modelToKey($model) . '.relations'), $key);
 
             if (!$relation) {
                 return Collection::make();
             }
 
-            $class = $relation['model'];
+            $model = $this->map->keyToModel($relation['related']);
 
             $resolved[implode('.', array_slice($keys, 0, $i + 1))] = $relation;
         }
@@ -115,8 +116,8 @@ class Helper
         return $resolved;
     }
 
-    public function isValidNestedRelation(string $class, string $key)
+    public function isValidNestedRelation(Model $model, string $key)
     {
-        return $this->resolveRelation($class, $key)->count() !== 0;
+        return $this->resolveRelation($model, $key)->count() !== 0;
     }
 }

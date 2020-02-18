@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Map implements MapContract
 {
+
+
     /**
      * Return an array of all models you want to map
      *
@@ -27,7 +29,7 @@ class Map implements MapContract
     {
         $finder = new RelationFinder();
 
-        return $finder->getModelRelations(get_class($model))->toArray();
+        return $finder->getModelRelations($model)->toArray();
     }
 
     /**
@@ -42,5 +44,29 @@ class Map implements MapContract
             $model->getFillable(),
             $model->getDates()
         ));
+    }
+
+    /**
+     * Convert a model to a unique key
+     *
+     * @param Model $model
+     *
+     * @return string
+     */
+    public function modelToKey(Model $model): string
+    {
+        return get_class($model);
+    }
+
+    /**
+     * Convert key to a new instance of a model
+     *
+     * @param string $key
+     *
+     * @return Model
+     */
+    public function keyToModel(string $key): Model
+    {
+        return new $key;
     }
 }

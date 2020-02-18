@@ -13,10 +13,10 @@ class HelperTest extends BaseTest
 {
     public function testEventReloadRelationships()
     {
-        $this->assertFalse(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'bookshelf'));
+        $this->assertFalse(app('eloquent.mapper')->isValidNestedRelation(new Book, 'bookshelf'));
         Book::belongs_to('bookshelf', Tag::class);
-        event(new \Railken\EloquentMapper\Events\EloquentMapUpdate(Book::class));
-        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'bookshelf'));
+        event(new \Railken\EloquentMapper\Events\EloquentMapUpdate(new Book));
+        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(new Book, 'bookshelf'));
         Book::removeRelation('bookshelf');
     }
 
@@ -49,8 +49,8 @@ class HelperTest extends BaseTest
 
     public function testValidationRelation()
     {
-        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'author'));
-        $this->assertFalse(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'bookshelf'));
-        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(Book::class, 'author.books.author.books.author'));
+        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(new Book(), 'author'));
+        $this->assertFalse(app('eloquent.mapper')->isValidNestedRelation(new Book(), 'bookshelf'));
+        $this->assertTrue(app('eloquent.mapper')->isValidNestedRelation(new Book(), 'author.books.author.books.author'));
     }
 }

@@ -26,4 +26,22 @@ interface Map
      * @return array
      */
     public function attributes(Model $model): array;
+
+    /**
+     * Convert a model to a unique key
+     *
+     * @param Model $model
+     *
+     * @return string
+     */
+    public function modelToKey(Model $model): string;
+
+    /**
+     * Convert key to a new instance of a model
+     *
+     * @param string $key
+     *
+     * @return Model
+     */
+    public function keyToModel(string $key): Model;
 }

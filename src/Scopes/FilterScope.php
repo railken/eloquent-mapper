@@ -81,13 +81,16 @@ class FilterScope
 
         if ($with) {
             foreach ($with as $withOne) {
-                $resolvedRelations = $this->helper->resolveRelation(get_class($model), $withOne->getName());
+
+
+                $resolvedRelations = $this->helper->resolveRelation($model, $withOne->getName());
 
                 if ($resolvedRelations->count() !== 0) {
                     $resolvedRelation = $resolvedRelations[$withOne->getName()];
 
                     $builder->with([$withOne->getName() => function ($query) use ($withOne, $resolvedRelation) {
                         $withModel = new $resolvedRelation['model'];
+
                         $innerScope = new self();
                         $innerScope->setOnApply($this->getOnApply());
                         $query->select($withModel->getTable().".*");
@@ -142,7 +145,7 @@ class FilterScope
         })->filter(function ($element) {
             return !empty($element);
         })->filter(function ($item) use ($model) {
-            return $this->helper->isValidNestedRelation(get_class($model), $item);
+            return $this->helper->isValidNestedRelation($model, $item);
         });
     }
     
@@ -151,10 +154,10 @@ class FilterScope
     {
         $keys = $this->helper->getAttributesByModel($model);
 
-        $relations = $this->helper->resolveRelations(get_class($model), $relations->toArray());
+        $relations = $this->helper->resolveRelations($model, $relations->toArray());
 
         foreach ($relations as $key => $relation) {
-            $attrs = $this->helper->getAttributesByModel(new $relation['model']);
+            $attrs = $this->helper->getAttributesByModel($this->helper->map->keyToModel($relation['related']));
 
             $keys = $keys->merge($attrs->map(function ($attribute) use ($key) {
                 return $key.'.'.$attribute;

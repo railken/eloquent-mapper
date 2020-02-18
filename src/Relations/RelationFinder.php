@@ -27,15 +27,14 @@ class RelationFinder
      *
      * @throws \ReflectionException
      */
-    public function getModelRelations(string $model)
+    public function getModelRelations($model)
     {
         $class = new ReflectionClass($model);
 
         $traitMethods = Collection::make($class->getTraits())->map(function (ReflectionClass $trait) {
             return Collection::make($trait->getMethods(ReflectionMethod::IS_PUBLIC));
         })->flatten();
-        $macroMethods = $this->getMacroMethods($model);
-
+        $macroMethods = $this->getMacroMethods(get_class($model));
 
         $methods = Collection::make($class->getMethods(ReflectionMethod::IS_PUBLIC))
             ->merge($traitMethods)
@@ -63,7 +62,7 @@ class RelationFinder
         
         $methods->map(function (string $functionName) use ($model, &$relations) {
             try {
-                $return = app($model)->$functionName();
+                $return = $model->$functionName();
                 $relations = $relations->merge($this->getRelationshipFromReturn($functionName, $return));
             } catch (\BadMethodCallException $e) {
             }
@@ -139,6 +138,7 @@ class RelationFinder
             }
 
             $result = new Bag([
+                'related'        => $return->getRelated()->getMorphClass(),
                 'type'       => (new ReflectionClass($return))->getShortName(),
                 'name'       => $name,
                 'model'      => (new ReflectionClass($return->getRelated()))->getName(),

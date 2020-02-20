@@ -57,7 +57,7 @@ class RelationFinder
             $property = $class->getProperty('dynamicRelations');
             $property->setAccessible(true);
 
-            $methods = $methods->merge(Collection::make($property->getValue('dynamicRelations'))->keys());
+            $methods = $methods->merge(Collection::make($property->getValue('dynamicRelations')->all($model))->keys());
         }
         
         $methods->map(function (string $functionName) use ($model, &$relations) {

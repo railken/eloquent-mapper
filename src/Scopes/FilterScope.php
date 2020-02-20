@@ -93,7 +93,7 @@ class FilterScope
 
                         $innerScope = new self();
                         $innerScope->setOnApply($this->getOnApply());
-                        $query->select($withModel->getTable().".*");
+                        // $query->select($withModel->getTable().".*");
                         $innerScope->onApply($query, $withModel);
 
                         if ($withOne->getQuery()) {

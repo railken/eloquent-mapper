@@ -20,7 +20,7 @@ class Mapper extends Command
      */
     public function handle()
     {
-        app('eloquent.mapper')->regenerate();
-        $this->info("Generated!");
+        // app('eloquent.mapper')->regenerate();
+        // $this->info("Generated!");
     }
 }

@@ -22,27 +22,13 @@ class Helper
         $this->map = $map;
     }
 
-    public function setDataByStorage()
-    {
-        $this->setData($this->getByStorage());
-    }
-
     public function boot()
     {
-        if ($this->initializeStorage()) {
-            $this->regenerate();
-        } else {
-            $this->setDataByStorage();
-        }
-    }
+        $this->data = [];
 
-    public function regenerate()
-    {
         foreach ($this->map->models() as $model) {
             $this->generateModel($model instanceof Model ? $model : new $model);
         }
-
-        $this->setDataByStorage();
     }
 
     public function generateModel(Model $model)
@@ -59,17 +45,15 @@ class Helper
             return array_merge($relation->toArray(), ['key' => $key]);
         })->values()->toArray();
 
-        $content[get_class($model)] = [
+        $this->setData($this->map->modelToKey($model), [
             'relations' => $relations,
             'attributes' => $attributes,
-        ];
-
-        $this->setStorage($content);
+        ]);
     }
 
     public function getAttributesByModel(Model $model)
     {
-        return collect($this->getDataByKey(get_class($model).'.attributes'));
+        return collect($this->getDataByKey($this->map->modelToKey($model) . '.attributes'));
     }
 
     public function findRelationByKey(array $relations, string $needle)

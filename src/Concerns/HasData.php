@@ -6,17 +6,11 @@ use Railken\Bag;
 
 trait HasData
 {
-    protected $data;
+    protected $data = [];
 
-    public function setData(array $data)
+    public function setData(string $key, array $data)
     {
-        array_walk($data, function (&$item, $key) {
-            $item = array_map(function ($x) {
-                return (object) $x;
-            }, $item);
-        });
-
-        $this->data = $data;
+        $this->data[$key] = $data;
     }
 
     public function getData()

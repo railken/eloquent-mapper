@@ -85,7 +85,6 @@ class Helper
         $keys = explode('.', $key);
 
         foreach ($keys as $i => $key) {
-
             $relation = $this->findRelationByKey($this->getDataByKey($this->map->modelToKey($model) . '.relations'), $key);
 
             if (!$relation) {

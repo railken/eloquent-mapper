@@ -59,7 +59,11 @@ class FilterScope
         $filter = new Filter($model->getTable(), ['*']);
 
         // Retrieve relations used by the query
-        $keys = $this->extractFilterKeys($filter->getParser()->parse($query));
+        try {
+            $keys = $this->extractFilterKeys($filter->getParser()->parse($query));
+        } catch (\Railken\SQ\Exceptions\QuerySyntaxException $e) {
+            throw new \Railken\LaraEye\Exceptions\FilterSyntaxException($query, $e->getMessage());
+        }
             
         // Extract all relations from keys
         $relations = $this->filterKeysByRelations($builder, $model, $keys);

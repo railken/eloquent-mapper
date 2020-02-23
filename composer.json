@@ -6,10 +6,10 @@
     "require": {
         "php": ">=7.1",
         "railken/bag": "^1.2",
-        "imanghafoori/eloquent-relativity": "^1.0",
         "ankurk91/laravel-eloquent-relationships": "^1.1",
         "railken/lara-eye": "2.*",
-        "ramsey/collection": "^1.0"
+        "ramsey/collection": "^1.0",
+        "imanghafoori/eloquent-relativity": "dev-dev-non-static"
     },
     "require-dev": {
         "phpunit/phpunit": "*",
@@ -35,5 +35,11 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:railken/eloquent-relativity.git"
+        }
+    ]
 }

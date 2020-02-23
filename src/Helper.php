@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Railken\EloquentMapper\Concerns\HasStorage;
 use Railken\EloquentMapper\Concerns\HasData;
 use Illuminate\Support\Collection;
+use Railken\Bag;
 
 class Helper
 {
@@ -102,5 +103,16 @@ class Helper
     public function isValidNestedRelation(Model $model, string $key)
     {
         return $this->resolveRelation($model, $key)->count() !== 0;
+    }
+
+    public function retrieveRelationByModel(Model $model, string $needle): Bag
+    {
+        foreach ($this->map->relations($model) as $relation) {
+            if ($relation->name === $needle) {
+                return $relation;
+            }
+        }
+
+        return null;
     }
 }

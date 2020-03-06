@@ -21,6 +21,7 @@ class Helper
     public function __construct(MapContract $map)
     {
         $this->map = $map;
+        $this->inversedMap = new Collection();
     }
 
     public function boot()
@@ -114,5 +115,26 @@ class Helper
         }
 
         return null;
+    }
+
+    public function addInversedRelation(Model $source, Model $target, string $sourceMethod, string $targetMethod)
+    {
+        $this->inversedMap[] = (object) [
+            'source' => $this->map->modelToKey($source),
+            'sourceMethod' => $sourceMethod,
+            'target' => $this->map->modelToKey($target),
+            'targetMethod' => $targetMethod
+        ];
+    }
+
+    public function getInversedRelation(string $source, string $target, string $method)
+    {
+        $result = $this->inversedMap->first(function ($item) use ($source, $target, $method) {
+            return  $item->source === $source &&
+                    $item->target === $target &&
+                    $item->sourceMethod === $method;
+        });
+
+        return $result ? $result->targetMethod : null;
     }
 }

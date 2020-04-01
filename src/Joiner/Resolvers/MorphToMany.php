@@ -28,7 +28,7 @@ class MorphToMany extends Base
                 );
 
                 // Add manually contraints because all are removed
-                $join->where($pivotTableAlias.'.'.$relation->getMorphType(), $relation->getMorphClass());
+                $join->where($this->parseAliasableKey($pivotTableAlias, $relation->getMorphType()), $relation->getMorphClass());
             });
         }
         

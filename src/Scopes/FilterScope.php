@@ -85,6 +85,7 @@ class FilterScope
 
         if ($with) {
             foreach ($with as $withOne) {
+
                 $resolvedRelations = $this->helper->resolveRelation($model, $withOne->getName());
 
                 if ($resolvedRelations->count() !== 0) {
@@ -95,7 +96,6 @@ class FilterScope
 
                         $innerScope = new self();
                         $innerScope->setOnApply($this->getOnApply());
-                        // $query->select($withModel->getTable().".*");
                         $innerScope->onApply($query, $withModel);
 
                         if ($withOne->getQuery()) {
@@ -105,6 +105,8 @@ class FilterScope
                 }
             }
         }
+
+        $builder->select($model->getTable().".*");
 
         $this->keys = $keys->values()->toArray();
     }

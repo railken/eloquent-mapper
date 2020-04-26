@@ -85,7 +85,6 @@ class FilterScope
 
         if ($with) {
             foreach ($with as $withOne) {
-
                 $resolvedRelations = $this->helper->resolveRelation($model, $withOne->getName());
 
                 if ($resolvedRelations->count() !== 0) {

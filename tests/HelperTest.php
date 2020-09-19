@@ -24,13 +24,20 @@ class HelperTest extends BaseTest
     {
         $map = $this->app->make(MapContract::class);
 
-        $this->assertEquals([
+        $t1 = [
             'id',
             'name',
             'deleted_at',
             'created_at',
             'updated_at'
-        ], $map->attributes(new Book));
+        ];
+
+        $t2 = $map->attributes(new Book);
+
+        asort($t1);
+        asort($t2);
+
+        $this->assertEquals($t1, $t2);
     }
 
     public function testRelationsList()

@@ -17,6 +17,7 @@ class Helper
     use HasData;
 
     public $map;
+    protected $inversedMap;
 
     public function __construct(MapContract $map)
     {

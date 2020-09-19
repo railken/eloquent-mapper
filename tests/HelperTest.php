@@ -37,7 +37,7 @@ class HelperTest extends BaseTest
         asort($t1);
         asort($t2);
 
-        $this->assertEquals($t1, $t2);
+        $this->assertEquals(array_values($t1), array_values($t2));
     }
 
     public function testRelationsList()

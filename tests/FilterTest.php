@@ -20,7 +20,7 @@ class FilterTest extends BaseTest
         $scope->apply($qb, 'author.name ct "hello"');
 
         $this->assertQuery('
-            SELECT *
+            SELECT `books`.*
             FROM `books`
             LEFT JOIN `authors` AS `author`
                 ON `books`.`author_id` = `author`.`id`
@@ -41,7 +41,7 @@ class FilterTest extends BaseTest
         ]));
 
         $this->assertQuery('
-            SELECT *
+            SELECT `books`.*
             FROM `books`
             LEFT JOIN `authors` AS `author`
                 ON `books`.`author_id` = `author`.`id`

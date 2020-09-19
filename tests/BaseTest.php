@@ -19,6 +19,8 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
         $this->artisan('mapper:generate');
 
         $this->formatter = new Formatter();
+
+        app('eloquent.mapper')->boot();
     }
 
     public function assertQuery($x, $y)

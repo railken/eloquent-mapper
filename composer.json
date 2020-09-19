@@ -9,13 +9,12 @@
         "ankurk91/laravel-eloquent-relationships": "^1.1",
         "railken/lara-eye": "2.*",
         "ramsey/collection": "^1.0",
-        "imanghafoori/eloquent-relativity": "dev-dev-non-static"
+        "railken/eloquent-relativity": "2.*"
     },
     "require-dev": {
         "phpunit/phpunit": "*",
         "orchestra/testbench": "*",
-        "nilportugues/sql-query-formatter": "^1.2",
-        "friendsofphp/php-cs-fixer": "^2.16"
+        "nilportugues/sql-query-formatter": "^1.2"
     },
     "autoload": {
         "psr-4" : {
@@ -35,11 +34,5 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:railken/eloquent-relativity.git"
-        }
-    ]
+    "prefer-stable": true
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class MorphToMany extends Base
 {
-    public function resolve(Builder $builder)
+    public function resolve($builder)
     {
         $method = $this->getMethod();
         $table = $this->getRelation()->getTable();

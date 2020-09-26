@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class HasOneOrMany extends Base
 {
-    public function resolve(Builder $builder)
+    public function resolve($builder)
     {
         if (!$this->isAlreadyJoined($builder, $this->getJoinQuery())) {
             $this->join($builder, 'parentKey', 'foreignKey');

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class BelongsTo extends Base
 {
-    public function resolve(Builder $builder)
+    public function resolve($builder)
     {
         if (!$this->isAlreadyJoined($builder, $this->getJoinQuery())) {
             $this->join($builder, 'foreignKey', 'ownerKey', 1);

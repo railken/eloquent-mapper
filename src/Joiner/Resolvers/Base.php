@@ -166,7 +166,7 @@ abstract class Base
         return DB::raw('`'.$alias.'`.`'.$key.'`');
     }
 
-    public function join(Builder $builder, string $sourceKey, string $targetKey)
+    public function join($builder, string $sourceKey, string $targetKey)
     {
         $method = $this->getMethod();
         
